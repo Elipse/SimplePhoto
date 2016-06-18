@@ -22,6 +22,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.JTextComponent;
 
 /**
  *
@@ -89,7 +90,7 @@ public class View {
                     JTextField textField = (JTextField) e.getSource();
                     Point locationOnScreen = textField.getLocationOnScreen();
                     locationOnScreen.translate(0, textField.getHeight());
-                    dController.setOwner(((JTextField) e.getSource()).getName());
+                    dController.focusGained(((JTextField) e.getSource()).getName(), ((JTextField) e.getSource()).getText());
                     dController.setLocation(locationOnScreen);
                     dController.setVisible(true);
                 }

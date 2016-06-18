@@ -5,12 +5,22 @@
  */
 package simplealbum.mvc.autocomplete;
 
+import java.awt.Color;
+import java.util.List;
+
 /**
  *
  * @author elialva
  */
 public interface Seeker {
 
-    InfoPage command(String lastRequest);
+    InfoPage command(String query);
 
+    InfoPage command(InfoPage infoPage);
+
+    List<String> getColors();
+
+    String getFilter();
+
+    String getTitle();
 }

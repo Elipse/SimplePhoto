@@ -14,14 +14,36 @@ import simplealbum.mvc.autocomplete.SeekerFactory;
  */
 public class SeekerFactoryImpl extends SeekerFactory {
 
+    private long name = 0;
+    private final SeekerName byName;
+    private final SeekerNameL byNameL;
+
+    public SeekerFactoryImpl() {
+        byName = new SeekerName();
+        byNameL = new SeekerNameL();
+    }
+
+    @Override
+    public Seeker retrieveNextSeeker(String type) {
+        switch (type) {
+            case "_NAME$TXT":
+                name++;
+                return name % 2 == 0 ? byName : byNameL;
+            case "_TIPO$TXT":
+                System.out.println("SeekerTipo");
+                return new SeekerTipo();
+            default:
+                throw new AssertionError();
+        }
+    }
+
     @Override
     public Seeker retrieveSeeker(String type) {
         switch (type) {
             case "_NAME$TXT":
-                System.out.println("SeekerName");
-                return new SeekerName();
+                name = 0;
+                return byName;
             case "_TIPO$TXT":
-                System.out.println("SeekerTipo");
                 return new SeekerTipo();
             default:
                 throw new AssertionError();

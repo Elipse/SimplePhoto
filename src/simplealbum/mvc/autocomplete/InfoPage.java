@@ -5,6 +5,10 @@
  */
 package simplealbum.mvc.autocomplete;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  *
  * @author elialva
@@ -12,6 +16,8 @@ package simplealbum.mvc.autocomplete;
 public class InfoPage {
 
     private String query;
+    private List<List<String>> list;
+    private int direction;
 
     @Override
     public String toString() {
@@ -24,5 +30,24 @@ public class InfoPage {
 
     public void setQuery(String query) {
         this.query = query;
+    }
+
+    public List<List<String>> getRows() {
+        return list;
+    }
+
+    public void setData(List<List<String>> list) {
+        this.list = list;
+    }
+
+    void setDirection(int direction) {
+        this.direction = direction;
+    }
+
+    /**
+     * @return the direction
+     */
+    public int getDirection() {
+        return direction;
     }
 }

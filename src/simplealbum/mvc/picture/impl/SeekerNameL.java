@@ -17,17 +17,16 @@ import simplealbum.mvc.autocomplete.Seeker;
  *
  * @author elialva
  */
-public class SeekerTipo implements Seeker {
+public class SeekerNameL implements Seeker {
 
     private int mode;
     private List<List<String>> list;
 
-    public SeekerTipo() {
+    public SeekerNameL() {
     }
 
     @Override
     public InfoPage command(String lastRequest) {
-
         System.out.println("command e nseeker");
         try {
             Thread.sleep(0500);
@@ -38,10 +37,10 @@ public class SeekerTipo implements Seeker {
         infoPage.setQuery(lastRequest);
 
         list = new ArrayList();
-        list.add(Arrays.asList("11", "pesos", "\\tiny\\images\\y34535.jpg"));
-        list.add(Arrays.asList("22", "dolares", "\\tiny\\images\\l132.jpg"));
-        list.add(Arrays.asList("33", "marcos", "\\tiny\\images\\qv5.jpg"));
-        list.add(Arrays.asList("44", "pesetas", "\\tiny\\images\\nf3.jpg"));
+        list.add(Arrays.asList("11", "Poliza", "\\tiny\\images\\y34535.jpg"));
+        list.add(Arrays.asList("22", "Cobertura", "\\tiny\\images\\l132.jpg"));
+        list.add(Arrays.asList("33", "Objecto", "\\tiny\\images\\qv5.jpg"));
+        list.add(Arrays.asList("44", "Primas", "\\tiny\\images\\nf3.jpg"));
         infoPage.setData(list);
 
         return infoPage;
@@ -49,15 +48,17 @@ public class SeekerTipo implements Seeker {
 
     @Override
     public InfoPage command(InfoPage infoPage) {
-        System.out.println("PAGINANDO EN TIPO " + infoPage.getDirection());
+        System.out.println("PAGINANDO EN NOMBRE LARGO " + infoPage.getDirection());
         return infoPage;
     }
 
     @Override
     public List<String> getColors() {
+
         ArrayList<String> l = new ArrayList();
-        l.add("Magenta");
-        l.add("Blue");
+        l.add("Lust");
+        l.add("Lumber");
+        l.add("Livid");
         return l;
     }
 
@@ -68,7 +69,7 @@ public class SeekerTipo implements Seeker {
 
     @Override
     public String getTitle() {
-        return "Busqueda por tipo.";
+        return "Busqueda por nombre largo.";
     }
 
 }

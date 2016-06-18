@@ -11,6 +11,8 @@ package simplealbum.mvc.autocomplete;
  */
 public abstract class SeekerFactory {
 
+    public abstract Seeker retrieveNextSeeker(String type);
+
     public abstract Seeker retrieveSeeker(String type);
 
 }
