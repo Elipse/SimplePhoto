@@ -6,9 +6,6 @@
 package simplealbum.mvc.autocomplete;
 
 import java.awt.Frame;
-import javax.swing.InputMap;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 
 /**
  *

@@ -11,7 +11,9 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -60,6 +62,8 @@ public class DController implements DocumentListener, MouseListener {
     private String focusOwner;
     private InfoPage infoPage;
 
+    private Map<String, Integer> idMap;
+
     private DController(DView view, DModel model, SeekerFactory factory) {
         this.view = view;
         this.view.setDController(DController.this);
@@ -83,6 +87,8 @@ public class DController implements DocumentListener, MouseListener {
         action = "";
 
         this.factory = factory;
+
+        idMap = new HashMap<>();
 
         configureKeyBoard();
 
@@ -152,7 +158,8 @@ public class DController implements DocumentListener, MouseListener {
         Seeker seeker = factory.retrieveSeeker(focusOwner);
         changeSeeker(seeker);
         if (!inputText.isEmpty()) {
-            jTextPane.setText(inputText);
+            Integer id = idMap.get(focusOwner);
+            jTextPane.setText("-i " + (id != null ? id : ""));
         }
     }
 
@@ -197,8 +204,14 @@ public class DController implements DocumentListener, MouseListener {
     }
 
     void processSelection() {
-        System.out.println("Se diao enter procesa selection del dialog para jbeans");
-
+        //TODO SE EXTRAE ID Y SE GRABA EN IDMAP
+        int row = jTable.getSelectedRow();
+        if (row >= 0) {
+            String idSt = (String) jTable.getModel().getValueAt(row, 0);
+            int id = Integer.parseInt(idSt);
+            idMap.put(focusOwner, id);
+            masterController.changedId(focusOwner, id);
+        }
     }
 
     //* Implements DocumentListener * /

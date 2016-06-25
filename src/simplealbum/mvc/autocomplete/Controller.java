@@ -22,4 +22,8 @@ public class Controller {
         this.view.setController(Controller.this);
         this.view.setDController(dController);
     }
+
+    void changedId(String focusOwner, int id) {
+        System.out.println("Master Controller " + "_ID$" + focusOwner + ": " + id);
+    }
 }
