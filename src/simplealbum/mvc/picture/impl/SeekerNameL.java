@@ -27,7 +27,7 @@ public class SeekerNameL implements Seeker {
 
     @Override
     public InfoPage command(String lastRequest) {
-        System.out.println("command e nseeker");
+//        System.out.println("command e nseeker");
         try {
             Thread.sleep(0500);
         } catch (InterruptedException ex) {

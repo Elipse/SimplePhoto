@@ -219,13 +219,13 @@ public class DModel extends SwingWorker<Void, InfoPage> {
          */
         public void setList(List<List<String>> list) {
 
-            System.out.println("Seteando despies de thread " + list.size());
-            System.out.println("list. " + list.get(0).get(0));
-            System.out.println("escuchandoA " + listenerList.getListenerCount());
+            //System.out.println("Seteando despies de thread " + list.size());
+            //System.out.println("list. " + list.get(0).get(0));
+            //System.out.println("escuchandoA " + listenerList.getListenerCount());
             this.list = list;
 //            fireTableDataChanged();
-            System.out.println("escuchandoB " + listenerList.getListenerCount());
-            System.out.println("Tamaño " + getRowCount());
+            //System.out.println("escuchandoB " + listenerList.getListenerCount());
+            //System.out.println("Tamaño " + getRowCount());
             fireTableStructureChanged();
         }
 

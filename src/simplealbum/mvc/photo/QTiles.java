@@ -131,8 +131,7 @@ public class QTiles implements Runnable {
 
                 if (theLastOne + 1 < images.length) {
 
-                    System.out.println("X Mandar: " + (theLastOne + 1));
-
+                    //System.out.println("X Mandar: " + (theLastOne + 1));
                     BufferedImage img = (BufferedImage) images[theLastOne + 1];
 
                     BufferedImage big = Scalr.resize(img, Scalr.Method.AUTOMATIC, 64 * 4);
@@ -141,14 +140,14 @@ public class QTiles implements Runnable {
                     QBallon b1 = new QBallon(img, big, synch);
                     QBallon b2 = new QBallon(img, small, synch);
 
-                    System.out.println("Qtiles init");
+                    //System.out.println("Qtiles init");
                     EventQueue.invokeLater(() -> {
-                        System.out.println("BIGGER " + theLastOne);
+                        //System.out.println("BIGGER " + theLastOne);
                         pcs.firePropertyChange("BIG_", null, b1);
-                        System.out.println("SMALLER " + theLastOne);
+                        //System.out.println("SMALLER " + theLastOne);
                         pcs.firePropertyChange("SMALL_", null, b2);
                     });
-                    System.out.println("Qtiles end");
+                    //System.out.println("Qtiles end");
 
                     theLastOne++;
                     globalCount++;

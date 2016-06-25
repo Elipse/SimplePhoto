@@ -14,6 +14,7 @@ import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -81,7 +82,7 @@ public class DController implements DocumentListener, MouseListener {
         jTable = this.view.jTable1;
         jTable.addMouseListener(DController.this);
 
-        System.out.println("Modelito " + this.model.getTableModel());
+        //System.out.println("Modelito " + this.model.getTableModel());
         jTable.setModel(this.model.getTableModel());
 
         action = "";
@@ -123,7 +124,7 @@ public class DController implements DocumentListener, MouseListener {
     }
 
     public void request() {
-        System.out.println("REUEQSR ");
+        //System.out.println("REUEQSR ");
         String inputText = jTextPane.getText();
         if (inputText.isEmpty()) {
             model.emptyList();
@@ -157,10 +158,22 @@ public class DController implements DocumentListener, MouseListener {
         this.focusOwner = focusOwner;
         Seeker seeker = factory.retrieveSeeker(focusOwner);
         changeSeeker(seeker);
-        if (!inputText.isEmpty()) {
-            Integer id = idMap.get(focusOwner);
-            jTextPane.setText("-i " + (id != null ? id : ""));
+
+        Integer id = idMap.get(focusOwner);
+        if (id != null) {
+            jTextPane.setText("-i " + id);
+            System.out.println("Tamaño " + jTable.getModel().getRowCount());
+            for (int i = 0; i < jTable.getModel().getRowCount(); i++) {
+                Integer idTmp = (Integer) jTable.getModel().getValueAt(i, 0);
+                System.out.println("idTp " + idTmp + " --- " + id);
+                if ((Objects.equals(idTmp, id))) {
+                    jTable.setRowSelectionInterval(i, i);
+                }
+            }
+        } else {
+            jTextPane.setText("");
         }
+
     }
 
     void changeSeeker(Seeker seeker) {
@@ -196,7 +209,7 @@ public class DController implements DocumentListener, MouseListener {
     }
 
     void cancel() {
-        System.out.println("Cancelando captura " + masterController);
+        //System.out.println("Cancelando captura " + masterController);
     }
 
     void setController(Controller controller) {
@@ -229,7 +242,7 @@ public class DController implements DocumentListener, MouseListener {
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-        System.out.println("En DControler");
+
     }
     //* Implements DocumentListener * /
 
@@ -264,7 +277,7 @@ public class DController implements DocumentListener, MouseListener {
             action = "NEXT";
             view.setVisible(false);
         }
-        System.out.println("en mousadasd ads en dcontroller");
+        //System.out.println("en mousadasd ads en dcontroller");
     }
 
     @Override
@@ -325,12 +338,12 @@ public class DController implements DocumentListener, MouseListener {
     }
 
     private void pageUp() {
-        System.out.println("EN DCONTROLLER PAGE UP");
+        //System.out.println("EN DCONTROLLER PAGE UP");
         model.requestPageUp();
     }
 
     private void pageDown() {
-        System.out.println("EN DCONTROLLER PAGE DOWN");
+        //System.out.println("EN DCONTROLLER PAGE DOWN");
         model.requestPageDown();
     }
 

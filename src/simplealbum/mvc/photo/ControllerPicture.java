@@ -65,33 +65,33 @@ public class ControllerPicture {
 
         switch (e.getPropertyName()) {
             case "BIG_":
-                System.out.println("BIG b.getSynch() " + b.getSynch() + "-" + synch + "#" + System.currentTimeMillis());
+                //System.out.println("BIG b.getSynch() " + b.getSynch() + "-" + synch + "#" + System.currentTimeMillis());
                 if (b.getSynch() != synch || getFreeLabel() == null) {
                     System.out.println("Bigger no se exhibe");
                     break;
                 }
                 showPicture(view.getPic(), b.getScaled());
                 currentImg = (BufferedImage) e.getOldValue();
-                System.out.println("LA ACUTAL " + currentImg);
+                //System.out.println("LA ACUTAL " + currentImg);
                 break;
             case "SMALL_":
                 if (b.getSynch() != synch) {
-                    System.out.println("Basurela " + lastOne + "#" + System.currentTimeMillis());
+                    //System.out.println("Basurela " + lastOne + "#" + System.currentTimeMillis());
                     break;
                 }
-                System.out.println("SMALL b.getSynch() " + b.getSynch() + "-" + synch + "#" + e.getNewValue());
+                //System.out.println("SMALL b.getSynch() " + b.getSynch() + "-" + synch + "#" + e.getNewValue());
                 JLabel label = getFreeLabel();
                 if (label != null) {
                     QBallon b2 = (QBallon) e.getNewValue();
                     showPicture(label, b2.getScaled());
-                    System.out.println("En controller el Focus");
+                    //System.out.println("En controller el Focus");
                     label.requestFocusInWindow();
                     lastOne++;
                     global++;
-                    System.out.println("GLOBAL " + global + " " + " OFFSET " + lastOne);
+                    //System.out.println("GLOBAL " + global + " " + " OFFSET " + lastOne);
                     assert (lastOne > 0 && lastOne <= 5);
                 } else {
-                    System.out.println("VIA SMALL");
+                    //System.out.println("VIA SMALL");
                     streamOff();
                 }
                 break;

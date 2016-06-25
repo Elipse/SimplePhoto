@@ -357,7 +357,6 @@ public class ViewPicture {
 
         @Override
         public void focusGained(FocusEvent e) {
-            System.out.println("ORJAXO ");
             JLabel source = (JLabel) e.getSource();
             source.setBorder(new LineBorder(Color.red));
         }
