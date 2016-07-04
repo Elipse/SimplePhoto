@@ -30,7 +30,7 @@ public class XeamModelPicture {
     private final Consumer consumerScr;
 
     private final PropertyChangeSupport propertyChangeSupport;
-    private ControllerPicture controller;
+    private ControllerPhoto controller;
 
     public XeamModelPicture(Sender sender) {
         buffer = new ArrayBlockingQueue(20);
@@ -60,12 +60,12 @@ public class XeamModelPicture {
         try {
             return picturesList.take();
         } catch (InterruptedException ex) {
-            Logger.getLogger(ModelPicture.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ModelPhoto.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
 
-    void setController(ControllerPicture controller) {
+    void setController(ControllerPhoto controller) {
         this.controller = controller;
     }
 
@@ -128,7 +128,7 @@ public class XeamModelPicture {
 //                    });
 
                 } catch (InterruptedException | IOException ex) {
-                    Logger.getLogger(ModelPicture.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ModelPhoto.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }

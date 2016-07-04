@@ -1,4 +1,4 @@
-package simplealbum.mvc.autocomplete;
+package utils;
 
 import java.awt.Component;
 import java.awt.Container;

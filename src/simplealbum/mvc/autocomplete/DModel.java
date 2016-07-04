@@ -100,7 +100,7 @@ public class DModel extends SwingWorker<Void, InfoPage> {
 
                 if (request != null) {
                     lastRequest = request;
-                    System.out.println("lastRequest " + lastRequest);
+                    //System.out.println("lastRequest " + lastRequest);
                 }
 
                 //Esperé más de 40 ms y tengo un dato que procesar
@@ -109,13 +109,12 @@ public class DModel extends SwingWorker<Void, InfoPage> {
                 }
             }
 
-            System.out.println("procese " + lastRequest);
-
+            //System.out.println("procese " + lastRequest);
             if (seeker != null) {
                 InfoPage response;
 
                 if (lastRequest instanceof String) {
-                    System.out.println("Un query String");
+                    //System.out.println("Un query String");
                     response = seeker.command((String) lastRequest);
                 } else {
                     System.out.println("Un query InfoPage " + seeker.getClass() + " " + lastRequest);
@@ -138,10 +137,11 @@ public class DModel extends SwingWorker<Void, InfoPage> {
 
         if (infoPage.getQuery().equals(query)) {
             tableModel.setList(infoPage.getRows());
-            System.out.println("Si, gracias. " + infoPage.getQuery() + " vs " + query);
+            controller.setActiveRow();
+            //System.out.println("Si, gracias. " + infoPage.getQuery() + " vs " + query);
         } else {
             //TODO incluir aqui recordPage??? AvPag y RePag no harian nada con null  !!!?
-            System.out.println("No, gracias. " + infoPage.getQuery() + " vs " + query);
+            //System.out.println("No, gracias. " + infoPage.getQuery() + " vs " + query);
         }
     }
 

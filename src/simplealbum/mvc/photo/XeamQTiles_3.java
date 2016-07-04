@@ -27,12 +27,12 @@ public class XeamQTiles_3 implements Runnable {
     private final LinkedBlockingDeque transfer;
     private volatile Boolean threadStopped;
     private volatile int theLastOne;
-    private final ModelPicture model;
+    private final ModelPhoto model;
     private final PropertyChangeSupport pcs;
     private int globalCount;
     private volatile Object synch;
 
-    public XeamQTiles_3(ModelPicture model, PropertyChangeListener listener) {
+    public XeamQTiles_3(ModelPhoto model, PropertyChangeListener listener) {
         this.transfer = new LinkedBlockingDeque(5);
         this.model = model;
         pcs = new PropertyChangeSupport(XeamQTiles_3.this);

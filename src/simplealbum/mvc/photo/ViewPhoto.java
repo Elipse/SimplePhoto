@@ -36,11 +36,11 @@ import javax.swing.border.LineBorder;
  *
  * @author elialva
  */
-public class ViewPicture {
+public class ViewPhoto {
 
     private boolean toogle = true;
 
-    private ControllerPicture controllerPicture;
+    private ControllerPhoto controllerPicture;
     private final List<JLabel> carousel;
     private final List<JLabel> picture;
     private final Container container;
@@ -48,7 +48,7 @@ public class ViewPicture {
     private JButton buttonGET;
     private JPanel panel;
 
-    ViewPicture(final Container container) {
+    ViewPhoto(final Container container) {
 
         this.container = container;
         MyListener myListener = new MyListener();
@@ -168,12 +168,12 @@ public class ViewPicture {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("F1...");
-                if (ViewPicture.this.toogle) {
+                if (ViewPhoto.this.toogle) {
 //                    controllerPicture.suspend();
                 } else {
 //                    controllerPicture.resume();
                 }
-                ViewPicture.this.toogle = !ViewPicture.this.toogle;
+                ViewPhoto.this.toogle = !ViewPhoto.this.toogle;
             }
         });
 
@@ -183,17 +183,20 @@ public class ViewPicture {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                JLabel pic = (JLabel) FocusManager.getCurrentManager().getFocusOwner();
-                int indexOf = carousel.indexOf(pic);
-                if (pic.getIcon() != null) {
-                    try {
-                        System.out.println("indexOf " + indexOf);
-                        controllerPicture.remove(indexOf);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(ViewPicture.class.getName()).log(Level.SEVERE, null, ex);
+                Component component = FocusManager.getCurrentManager().getFocusOwner();
+                if (component instanceof JLabel) {
+                    JLabel pic = (JLabel) component;
+                    int indexOf = carousel.indexOf(pic);
+                    if (pic.getIcon() != null) {
+                        try {
+                            System.out.println("indexOf " + indexOf);
+                            controllerPicture.remove(indexOf);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(ViewPhoto.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
+                    System.out.println("TODO Incluir llamado al controlador");
                 }
-                System.out.println("TODO Incluir llamado al controlador");
             }
         });
 
@@ -202,7 +205,7 @@ public class ViewPicture {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                ViewPicture.this.controllerPicture.streamToggle();
+                ViewPhoto.this.controllerPicture.streamToggle();
             }
         });
 
@@ -214,7 +217,7 @@ public class ViewPicture {
                 for (JLabel carousel1 : carousel) {
                     System.out.println("carousel1 " + carousel1.isFocusable() + " " + carousel1.isFocusCycleRoot());
                 }
-                ViewPicture.this.controllerPicture.getPicture();
+                ViewPhoto.this.controllerPicture.getPicture();
             }
         });
 
@@ -238,7 +241,7 @@ public class ViewPicture {
                     try {
                         controllerPicture.remove(3);
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(ViewPicture.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(ViewPhoto.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
@@ -256,7 +259,7 @@ public class ViewPicture {
         }
     }
 
-    void setController(ControllerPicture controller) {
+    void setController(ControllerPhoto controller) {
         this.controllerPicture = controller;
 //        controllerPicture.setCarousel(carousel);
     }

@@ -39,10 +39,11 @@ public class SeekerName implements Seeker {
         infoPage.setQuery(lastRequest);
 
         list = new ArrayList();
-        list.add(Arrays.asList("11", "Poliza", "\\tiny\\images\\y34535.jpg"));
-        list.add(Arrays.asList("22", "Cobertura", "\\tiny\\images\\l132.jpg"));
-        list.add(Arrays.asList("33", "Objecto", "\\tiny\\images\\qv5.jpg"));
-        list.add(Arrays.asList("44", "Primas", "\\tiny\\images\\nf3.jpg"));
+        list.add(Arrays.asList("ID", "DESCRIPTION", "IMAGE"));
+//        list.add(Arrays.asList("11", "Poliza", "\\tiny\\images\\y34535.jpg"));
+//        list.add(Arrays.asList("22", "Cobertura", "\\tiny\\images\\l132.jpg"));
+//        list.add(Arrays.asList("33", "Objecto", "\\tiny\\images\\qv5.jpg"));
+//        list.add(Arrays.asList("44", "Primas", "\\tiny\\images\\nf3.jpg"));
         infoPage.setData(list);
 
         return infoPage;

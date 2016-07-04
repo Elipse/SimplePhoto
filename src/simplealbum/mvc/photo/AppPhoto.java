@@ -13,9 +13,9 @@ import java.awt.Container;
  */
 public class AppPhoto {
 
-    public static ControllerPicture control(Container container, Sender sender) {
-        ViewPicture viewPicture = new ViewPicture(container);
-        ModelPicture modelPicture = new ModelPicture(sender);
-        return new ControllerPicture(viewPicture, modelPicture);
+    public static ControllerPhoto control(Container container, Sender sender) {
+        ViewPhoto viewPicture = new ViewPhoto(container);
+        ModelPhoto modelPicture = new ModelPhoto(sender);
+        return new ControllerPhoto(viewPicture, modelPicture);
     }
 }

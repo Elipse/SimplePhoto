@@ -63,7 +63,8 @@ public class DController implements DocumentListener, MouseListener {
     private String focusOwner;
     private InfoPage infoPage;
 
-    private Map<String, Integer> idMap;
+    private final Map<String, Integer> idMap;
+    private boolean focusGained;
 
     private DController(DView view, DModel model, SeekerFactory factory) {
         this.view = view;
@@ -97,7 +98,7 @@ public class DController implements DocumentListener, MouseListener {
 
     private void configureKeyBoard() {
         reassignKeyStrokes(jTextPane, JComponent.WHEN_FOCUSED, "pressed ENTER", "shift pressed ENTER");
-        assignKeyStrokes(view.getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW, "pressed ENTER", new MyAction("DO_ENTER"));
+        assignKeyStrokes(view.getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW, "pressed ENTER", new MyAction("pressed ENTER"));
 
         assignKeyStrokes(view.getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW, "pressed ESCAPE", new MyAction("DO_ESCAPE"));
 
@@ -159,21 +160,14 @@ public class DController implements DocumentListener, MouseListener {
         Seeker seeker = factory.retrieveSeeker(focusOwner);
         changeSeeker(seeker);
 
+        //TODO Esto puede ser inncesario
         Integer id = idMap.get(focusOwner);
         if (id != null) {
             jTextPane.setText("-i " + id);
-            System.out.println("Tamaño " + jTable.getModel().getRowCount());
-            for (int i = 0; i < jTable.getModel().getRowCount(); i++) {
-                Integer idTmp = (Integer) jTable.getModel().getValueAt(i, 0);
-                System.out.println("idTp " + idTmp + " --- " + id);
-                if ((Objects.equals(idTmp, id))) {
-                    jTable.setRowSelectionInterval(i, i);
-                }
-            }
         } else {
             jTextPane.setText("");
         }
-
+        focusGained = true;
     }
 
     void changeSeeker(Seeker seeker) {
@@ -197,12 +191,18 @@ public class DController implements DocumentListener, MouseListener {
     }
 
     void selectionDown() {
+        if (model.getTableModel().getRowCount() == 0) {
+            return;
+        }
         int selectedRow = jTable.getSelectedRow() + 1;
         selectedRow = selectedRow > jTable.getRowCount() - 1 ? 0 : selectedRow;
         jTable.setRowSelectionInterval(selectedRow, selectedRow);
     }
 
     void selectionUp() {
+        if (model.getTableModel().getRowCount() == 0) {
+            return;
+        }
         int selectedRow = jTable.getSelectedRow() - 1;
         selectedRow = selectedRow < 0 ? jTable.getRowCount() - 1 : selectedRow;
         jTable.setRowSelectionInterval(selectedRow, selectedRow);
@@ -221,6 +221,11 @@ public class DController implements DocumentListener, MouseListener {
         int row = jTable.getSelectedRow();
         if (row >= 0) {
             String idSt = (String) jTable.getModel().getValueAt(row, 0);
+            int id = Integer.parseInt(idSt);
+            idMap.put(focusOwner, id);
+            masterController.changedId(focusOwner, id);
+        } else {
+            String idSt = jTextPane.getText().replaceAll("-i ", "").trim();
             int id = Integer.parseInt(idSt);
             idMap.put(focusOwner, id);
             masterController.changedId(focusOwner, id);
@@ -300,14 +305,14 @@ public class DController implements DocumentListener, MouseListener {
     private void actionPerformed(Object name) {
 
         switch (name.toString()) {
-            case "DO_ENTER":
+            case "pressed ENTER":
                 action = "NEXT";
                 processSelection();
                 view.setVisible(false);
                 break;
             case "DO_TAB":
                 action = "NEXT";
-                processSelection();
+                //processSelection();
                 view.setVisible(false);
                 break;
             case "DO_ESCAPE":
@@ -345,6 +350,24 @@ public class DController implements DocumentListener, MouseListener {
     private void pageDown() {
         //System.out.println("EN DCONTROLLER PAGE DOWN");
         model.requestPageDown();
+    }
+
+    void setActiveRow() {
+        int rows = jTable.getModel().getRowCount();
+
+        if (focusGained) {
+            focusGained = false;
+
+            for (int i = 0; i < rows; i++) {
+                Integer idOwner = idMap.get(focusOwner);
+                Integer id = Integer.parseInt(jTable.getModel().getValueAt(i, 0).toString());
+                if (Objects.equals(id, idOwner)) {
+                    jTable.setRowSelectionInterval(i, i);
+                }
+            }
+        } else {
+            jTable.clearSelection();
+        }
     }
 
     private class MyAction extends AbstractAction {

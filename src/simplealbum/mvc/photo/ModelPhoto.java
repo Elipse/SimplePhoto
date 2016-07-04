@@ -22,15 +22,15 @@ import javax.imageio.ImageIO;
  *
  * @author elialva
  */
-public class ModelPicture {
+public class ModelPhoto {
 
     private final ArrayBlockingQueue buffer;
     private final Producer producer;
 
     private final PropertyChangeSupport pcs;
-    private ControllerPicture controller;
+    private ControllerPhoto controller;
 
-    public ModelPicture(Sender sender) {
+    public ModelPhoto(Sender sender) {
         buffer = new ArrayBlockingQueue(20);
         producer = new Producer(sender);
         pcs = new PropertyChangeSupport(this);
@@ -52,12 +52,12 @@ public class ModelPicture {
         try {
             return buffer.take();
         } catch (InterruptedException ex) {
-            Logger.getLogger(ModelPicture.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ModelPhoto.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
 
-    void setController(ControllerPicture controller) {
+    void setController(ControllerPhoto controller) {
         this.controller = controller;
     }
 
@@ -85,13 +85,13 @@ public class ModelPicture {
 
                 if (inputStream != null) {
                     try {
-                        ModelPicture.this.buffer.put(ImageIO.read(inputStream));
+                        ModelPhoto.this.buffer.put(ImageIO.read(inputStream));
                         c++;
                         EventQueue.invokeLater(() -> {
-                            ModelPicture.this.pcs.firePropertyChange("NEW_IMG", null, c);
+                            ModelPhoto.this.pcs.firePropertyChange("NEW_IMG", null, c);
                         });
                     } catch (InterruptedException | IOException ex) {
-                        Logger.getLogger(ModelPicture.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(ModelPhoto.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }

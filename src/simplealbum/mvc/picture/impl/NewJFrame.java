@@ -7,7 +7,7 @@ package simplealbum.mvc.picture.impl;
 
 import java.io.IOException;
 import simplealbum.mvc.photo.AppPhoto;
-import simplealbum.mvc.photo.ControllerPicture;
+import simplealbum.mvc.photo.ControllerPhoto;
 
 /**
  *
@@ -22,7 +22,7 @@ public class NewJFrame extends javax.swing.JFrame {
      */
     public NewJFrame() throws IOException {
         initComponents();
-        ControllerPicture control = AppPhoto.control(jPanel1, new SenderFile());
+        ControllerPhoto control = AppPhoto.control(jPanel1, new SenderFile());
         control.on();
         System.out.println("Jbutton1 " + jButton1);
     }

@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -26,14 +27,13 @@ public class ListingKeys {
 
     public static void main(String[] args) {
         //see BasicLookAndFeel
-        JScrollPane component = new JScrollPane();
+        JButton component = new JButton();
         javax.swing.plaf.basic.BasicComboBoxUI a;
         javax.swing.JTextField b;
         javax.swing.plaf.metal.MetalTextFieldUI c;
-        
+
 //        System.out.println("" + ((JTabbedPane) component).getUI());
         System.out.println("" + component.getClass());
-
 
         System.out.println("JComponent.WHEN_FOCUSED");
         InputMap inputMap = component.getInputMap(JComponent.WHEN_FOCUSED);
@@ -51,9 +51,8 @@ public class ListingKeys {
         list(inputMap, inputMap.allKeys());
 
         listAct(component);
-        
+
 //        javax.swing.plaf.basic.BasicTabbedPaneUI;
-        
         ActionListener forVisibleComponent = component.getActionForKeyStroke(KeyStroke.getKeyStroke("ctrl pressed DOWN"));
         ActionListener focus = component.getActionForKeyStroke(KeyStroke.getKeyStroke("ctrl pressed UP"));
         System.out.println("a1 " + forVisibleComponent + " a2 " + focus);

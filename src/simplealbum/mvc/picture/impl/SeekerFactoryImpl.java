@@ -33,7 +33,7 @@ public class SeekerFactoryImpl extends SeekerFactory {
                 System.out.println("SeekerTipo");
                 return new SeekerTipo();
             default:
-                throw new AssertionError();
+                return byName;
         }
     }
 
@@ -46,7 +46,7 @@ public class SeekerFactoryImpl extends SeekerFactory {
             case "_TIPO$TXT":
                 return new SeekerTipo();
             default:
-                throw new AssertionError();
+                return byName;
         }
     }
 }

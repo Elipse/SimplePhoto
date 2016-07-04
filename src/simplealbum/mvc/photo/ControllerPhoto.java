@@ -5,7 +5,6 @@
  */
 package simplealbum.mvc.photo;
 
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -18,10 +17,10 @@ import javax.swing.JLabel;
  *
  * @author elialva
  */
-public class ControllerPicture {
+public class ControllerPhoto {
 
-    private final ViewPicture view;
-    private final ModelPicture model;
+    private final ViewPhoto view;
+    private final ModelPhoto model;
     private final Quick amplifier;
 
     private final QTiles tiles;
@@ -31,11 +30,11 @@ public class ControllerPicture {
     private int global;
     private boolean stream;
 
-    public ControllerPicture(ViewPicture view, ModelPicture model) {
+    public ControllerPhoto(ViewPhoto view, ModelPhoto model) {
         this.view = view;
-        this.view.setController(ControllerPicture.this);
+        this.view.setController(ControllerPhoto.this);
         this.model = model;
-        this.model.setController(ControllerPicture.this);
+        this.model.setController(ControllerPhoto.this);
         //
         MyListener myListener = new MyListener();
         model.addPropertyChangeListener(myListener);
@@ -130,7 +129,7 @@ public class ControllerPicture {
         for (JLabel label : labels) {
             c++;
             if (c > 5) {
-                System.out.println("SIN CoNTAR");
+                //System.out.println("SIN CoNTAR");
                 return null;
             }
 
@@ -204,7 +203,7 @@ public class ControllerPicture {
     }
 
     void streamOff() {
-        System.out.println("srrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrOFFFF " + System.currentTimeMillis());
+        //System.out.println("srrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrOFFFF " + System.currentTimeMillis());
         stream = false;
         synch = new Object();
         tiles.suspend(synch, lastOne);
@@ -225,9 +224,9 @@ public class ControllerPicture {
         @Override
         public void propertyChange(PropertyChangeEvent e) {
             try {
-                ControllerPicture.this.propertyChange(e);
+                ControllerPhoto.this.propertyChange(e);
             } catch (InterruptedException ex) {
-                Logger.getLogger(ControllerPicture.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ControllerPhoto.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

@@ -5,6 +5,7 @@
  */
 package simplealbum.mvc.autocomplete;
 
+import utils.Utils;
 import java.awt.Container;
 import java.awt.Frame;
 import java.awt.KeyboardFocusManager;
@@ -23,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
+import utils.KeyStrokesUtil;
 
 /**
  *
@@ -46,6 +48,7 @@ public class View {
             if (c1 instanceof JTextField) {
                 JTextField tf = (JTextField) c1;
                 if (tf.getName().startsWith("_")) {
+                    System.out.println("tf " + tf);
                     list.add(tf);
                 }
             }

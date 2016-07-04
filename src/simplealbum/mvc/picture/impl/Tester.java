@@ -10,7 +10,7 @@ import javax.swing.Timer;
 import simplealbum.mvc.autocomplete.AppAutoComp;
 import simplealbum.mvc.autocomplete.Controller;
 import simplealbum.mvc.photo.AppPhoto;
-import simplealbum.mvc.photo.ControllerPicture;
+import simplealbum.mvc.photo.ControllerPhoto;
 
 /**
  *
@@ -23,7 +23,7 @@ public class Tester extends javax.swing.JFrame {
      */
     public Tester() {
         initComponents();
-        ControllerPicture control = AppPhoto.control(getContentPane(), new SenderFile());
+        ControllerPhoto control = AppPhoto.control(getContentPane(), new SenderFile());
         control.on();
         Controller cAutoComp = AppAutoComp.control(rootPane, new SeekerFactoryImpl());
 

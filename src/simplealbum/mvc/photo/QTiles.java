@@ -26,13 +26,13 @@ public class QTiles implements Runnable {
     private volatile Boolean threadSuspended;
     private volatile Boolean threadStopped;
     private volatile int theLastOne;
-    private final ModelPicture model;
+    private final ModelPhoto model;
     private final PropertyChangeSupport pcs;
     private int globalCount;
     private volatile Object synch;
     private volatile boolean isSuspended;
 
-    public QTiles(ModelPicture model, PropertyChangeListener listener) {
+    public QTiles(ModelPhoto model, PropertyChangeListener listener) {
         this.model = model;
         pcs = new PropertyChangeSupport(QTiles.this);
         pcs.addPropertyChangeListener(listener);
