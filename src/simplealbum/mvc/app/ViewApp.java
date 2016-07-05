@@ -55,7 +55,6 @@ public class ViewApp {
         KeyStrokesUtil.reassignKeyStrokes(jTextPane, JComponent.WHEN_FOCUSED, "pressed ENTER", "pressed shift ENTER");
         KeyStrokesUtil.assignKeyStrokes(jTextPane, JComponent.WHEN_FOCUSED, "pressed ENTER", new MyAction("pressed ENTER"));
 
-        KeyStrokesUtil.assignKeyStrokes(jPicPanel, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "pressed ENTER", new MyAction("pressed ENTER PICPANEL"));
         KeyStrokesUtil.assignKeyStrokes(jDBConn, JComponent.WHEN_FOCUSED, "pressed ENTER", new MyAction("pressed ENTER DBCONN"));
     }
 
@@ -64,10 +63,6 @@ public class ViewApp {
             case "pressed ENTER":
                 controller.focusNextComponent("");
                 System.out.println("Llamo a controller para focus");
-                break;
-            case "pressed ENTER PICPANEL":
-                controller.focusNextComponent("PICPANEL");
-                System.out.println("Llamo a controller para picpanel");
                 break;
             case "pressed ENTER DBCONN":
                 controller.focusNextComponent("DBCONN");

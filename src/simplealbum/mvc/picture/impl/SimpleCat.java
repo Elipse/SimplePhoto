@@ -32,18 +32,20 @@ public class SimpleCat extends javax.swing.JFrame {
      */
     public SimpleCat() {
         initComponents();
-
+        
         ControllerApp controllerApp = App.control(rootPane, new DBProvider());
-
+        
         ControllerPhoto control = AppPhoto.control(getContentPane(), new SenderFile());
         control.on();
+        control.addPropertyChangeListener(controllerApp);
+        
         Controller cAutoComp = AppAutoComp.control(rootPane, new SeekerFactoryImpl());
 
         //TODO Debe estar en el autocompletador de texto (CONTROLER)
         reassignKeyStrokes(jTextPane1, JComponent.WHEN_FOCUSED, "pressed TAB", "shift pressed TAB");
         System.out.println("content " + getContentPane());
         Action a = new AbstractAction("F8") {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Foquenado");
@@ -53,7 +55,7 @@ public class SimpleCat extends javax.swing.JFrame {
         //assignKeyStrokes((JPanel) getContentPane(), JComponent.WHEN_IN_FOCUSED_WINDOW, "pressed F8", a);
         System.out.println("a.name " + a.getValue("Name"));
         assignKeyStrokes(rootPane, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "pressed TAB", a);
-
+        
     }
 
     /**

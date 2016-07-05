@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
+import static javax.swing.Action.NAME;
 import javax.swing.FocusManager;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -31,6 +32,8 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 import javax.swing.border.LineBorder;
+import simplealbum.mvc.app.ViewApp;
+import utils.KeyStrokesUtil;
 
 /**
  *
@@ -105,7 +108,6 @@ public class ViewPhoto {
             if (component.getName() != null && component.getName().startsWith("_PICPANEL")) {
                 panel = (JPanel) component;
             }
-
         }
 
         // <editor-fold defaultstate="collapsed" desc="Traversal Policy">
@@ -220,6 +222,8 @@ public class ViewPhoto {
                 ViewPhoto.this.controllerPicture.getPicture();
             }
         });
+
+        KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "pressed ENTER", new MyAction("pressed ENTER"));
 
         // </editor-fold>
         for (Component thumbnail : carousel) {
@@ -356,18 +360,45 @@ public class ViewPhoto {
         carousel.get(indexOf).requestFocusInWindow();
     }
 
+    private void focusGained(FocusEvent e) {
+        controllerPicture.focusGained(e);
+    }
+
+    private void actionPerformed(String name) {
+        switch (name) {
+            case "pressed ENTER":
+                System.out.println("ViewPhoto controla el enter: la selección de la imagen y el salto de foco.");
+                //TODO Controller guarda la foto vigenete y da el salto al siguiente elemento.
+                controllerPicture.processSelection();
+                break;
+            default:
+                throw new AssertionError();
+        }
+    }
+
     private class MyListener implements FocusListener {
 
         @Override
         public void focusGained(FocusEvent e) {
-            JLabel source = (JLabel) e.getSource();
-            source.setBorder(new LineBorder(Color.red));
+            ViewPhoto.this.focusGained(e);
         }
 
         @Override
         public void focusLost(FocusEvent e) {
             JLabel source = (JLabel) e.getSource();
             source.setBorder(null);
+        }
+    }
+
+    private class MyAction extends AbstractAction {
+
+        private MyAction(String name) {
+            super(name);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            ViewPhoto.this.actionPerformed(getValue(NAME).toString());
         }
     }
 }

@@ -6,12 +6,14 @@
 package simplealbum.mvc.app;
 
 import java.awt.KeyboardFocusManager;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  *
  * @author elialva
  */
-public class ControllerApp {
+public class ControllerApp implements PropertyChangeListener {
 
     private final ViewApp view;
     private final ModelApp model;
@@ -36,6 +38,11 @@ public class ControllerApp {
             default:
                 KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
         }
+
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
 
     }
 

@@ -106,7 +106,7 @@ public class Quick implements Runnable {
                         return;
                     }
                     suspend();
-                    pcs.firePropertyChange(property, null, response);
+                    pcs.firePropertyChange(property, request, response);
                 });
             } catch (InterruptedException | InvocationTargetException ex) {
                 Logger.getLogger(Quick.class.getName()).log(Level.SEVERE, null, ex);

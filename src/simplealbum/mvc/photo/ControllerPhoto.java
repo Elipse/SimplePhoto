@@ -5,13 +5,17 @@
  */
 package simplealbum.mvc.photo;
 
+import java.awt.Color;
+import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
+import javax.swing.border.LineBorder;
 
 /**
  *
@@ -22,13 +26,14 @@ public class ControllerPhoto {
     private final ViewPhoto view;
     private final ModelPhoto model;
     private final Quick amplifier;
-
     private final QTiles tiles;
     private BufferedImage currentImg;
     private Integer lastOne;
     private volatile Object synch;
     private int global;
     private boolean stream;
+
+    private final PropertyChangeSupport pcs;
 
     public ControllerPhoto(ViewPhoto view, ModelPhoto model) {
         this.view = view;
@@ -46,6 +51,7 @@ public class ControllerPhoto {
         lastOne = 0;
         stream = true;
         //
+        pcs = new PropertyChangeSupport(this);
     }
 
     public void on() {
@@ -53,6 +59,14 @@ public class ControllerPhoto {
         synch = new Object();
         tiles.start(synch);
         amplifier.start();
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.addPropertyChangeListener(listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        this.pcs.removePropertyChangeListener(listener);
     }
 
     private void propertyChange(PropertyChangeEvent e) throws InterruptedException {
@@ -71,7 +85,7 @@ public class ControllerPhoto {
                 }
                 showPicture(view.getPic(), b.getScaled());
                 currentImg = (BufferedImage) e.getOldValue();
-                //System.out.println("LA ACUTAL " + currentImg);
+                System.out.println("LA ACUTAL " + currentImg);
                 break;
             case "SMALL_":
                 if (b.getSynch() != synch) {
@@ -102,7 +116,7 @@ public class ControllerPhoto {
             case "STOPPED":
                 break;
             case "AMP_IMG":
-                System.out.println("By APMPLIGIFNG");
+                currentImg = (BufferedImage) e.getOldValue();
                 showPicture(view.getPic(), (BufferedImage) e.getNewValue());
                 break;
             case "NO_PICS":
@@ -217,6 +231,15 @@ public class ControllerPhoto {
 
     void stop() {
         tiles.stop();
+    }
+
+    void focusGained(FocusEvent e) {
+        JLabel source = (JLabel) e.getSource();
+        source.setBorder(new LineBorder(Color.blue));
+    }
+
+    void processSelection() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     private class MyListener implements PropertyChangeListener {
