@@ -29,6 +29,7 @@ public class Quick implements Runnable {
     private volatile long time;
     private final PropertyChangeSupport pcs;
     private final String property;
+    private volatile int indexOf;
 
     public Quick(PropertyChangeListener l, String property) {
         pcs = new PropertyChangeSupport(Quick.this);
@@ -62,7 +63,7 @@ public class Quick implements Runnable {
         request(synch, synch);
     }
 
-    public void request(Object synch, Object request) {
+    private void request(Object synch, Object request) {
         assert EventQueue.isDispatchThread();
 
         this.synch = synch;
@@ -107,6 +108,7 @@ public class Quick implements Runnable {
                     }
                     suspend();
                     pcs.firePropertyChange(property, request, response);
+//                    pcs.fireIndexedPropertyChange(property, indexOf, request, response);
                 });
             } catch (InterruptedException | InvocationTargetException ex) {
                 Logger.getLogger(Quick.class.getName()).log(Level.SEVERE, null, ex);

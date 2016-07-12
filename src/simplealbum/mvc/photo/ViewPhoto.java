@@ -5,35 +5,24 @@
  */
 package simplealbum.mvc.photo;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.InvocationEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import static javax.swing.Action.NAME;
 import javax.swing.FocusManager;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.Timer;
-import javax.swing.border.LineBorder;
-import simplealbum.mvc.app.ViewApp;
 import utils.KeyStrokesUtil;
+import utils.Utils;
 
 /**
  *
@@ -41,226 +30,82 @@ import utils.KeyStrokesUtil;
  */
 public class ViewPhoto {
 
-    private boolean toogle = true;
-
     private ControllerPhoto controllerPicture;
     private final List<JLabel> carousel;
     private final List<JLabel> picture;
-    private final Container container;
     private final List listEngaged;
-    private JButton buttonGET;
     private JPanel panel;
+    private JLabel smallPic;
 
     ViewPhoto(final Container container) {
 
-        this.container = container;
         MyListener myListener = new MyListener();
         //
         carousel = new ArrayList<>();
         picture = new ArrayList<>();
         listEngaged = new ArrayList();
 
-        List<Component> components = getAllComponents(container);
+        List<Component> components = Utils.getAllComponents(container);
         for (Component component : components) {
             if (component.getName() != null && component.getName().startsWith("_CAR")) {
-                System.out.println("Position A " + component.getLocation() + " " + component.isFocusable());
                 component.setFocusable(true);
                 component.addFocusListener(myListener);
                 carousel.add((JLabel) component);
-                System.out.println("Position A.B " + component.isFocusable());
+            }
+            if (component.getName() != null && component.getName().startsWith("_SPIC")) {
+                component.setFocusable(true);
+                component.addFocusListener(myListener);
+                smallPic = (JLabel) component;
+//                carousel.add((JLabel) component);
             }
             if (component.getName() != null && component.getName().startsWith("_PICTURE")) {
-                System.out.println("YOP " + component.isFocusable());
-                System.out.println("MY FATH " + component.getParent().isFocusable());
                 picture.add((JLabel) component);
-            }
-
-            if (component.getName() != null && component.getName().startsWith("_STATE")) {
-                JButton button = (JButton) component;
-                System.out.println("Butoon ");
-                button.addActionListener(new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-//                        System.out.println("State " + controllerPicture.getState());
-                    }
-                });
-            }
-
-            if (component.getName() != null && component.getName().startsWith("_GET")) {
-                buttonGET = (JButton) component;
-                System.out.println("GET button ");
-                buttonGET.addActionListener((ActionEvent e) -> {
-                    System.out.println("Press GET button");
-                    controllerPicture.getPicture();
-//                        System.out.println("State " + controllerPicture.getState());
-                });
-            }
-
-            if (component.getName() != null && component.getName().startsWith("_STOP")) {
-                buttonGET = (JButton) component;
-                buttonGET.addActionListener((ActionEvent e) -> {
-                    controllerPicture.stop();
-//                        System.out.println("State " + controllerPicture.getState());
-                });
             }
 
             if (component.getName() != null && component.getName().startsWith("_PICPANEL")) {
                 panel = (JPanel) component;
+                panel.setFocusable(true);
+                panel.addFocusListener(myListener);
             }
         }
 
-        // <editor-fold defaultstate="collapsed" desc="Traversal Policy">
-        Collections.sort(carousel, new Comparator<Component>() {
+        Collections.sort(carousel, (Component o1, Component o2) -> {
+            // <editor-fold defaultstate="collapsed" desc="Traversal Policy">
+            int x1 = o1.getLocation().x;
+            int y1 = o1.getLocation().y;
 
-            @Override
-            public int compare(Component o1, Component o2) {
-                int x1 = o1.getLocation().x;
-                int y1 = o1.getLocation().y;
+            int x2 = o2.getLocation().x;
+            int y2 = o2.getLocation().y;
 
-                int x2 = o2.getLocation().x;
-                int y2 = o2.getLocation().y;
+            if (y1 > y2) {
+                return -1;
+            }
 
-                if (y1 < y2) {
+            if (y1 < y2) {
+                return 1;
+            }
+
+            if (y1 == y2) {
+                if (x1 == x2) {
+                    return 0;
+                }
+                if (x1 > x2) {
                     return -1;
                 }
-
-                if (y1 > y2) {
+                if (x1 < x2) {
                     return 1;
                 }
-
-                if (y1 == y2) {
-                    if (x1 == x2) {
-                        return 0;
-                    }
-                    if (x1 < x2) {
-                        return -1;
-                    }
-                    if (x1 > x2) {
-                        return 1;
-                    }
-                }
-                throw new AssertionError();
             }
-        });
-
-        panel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("RIGHT"), "DO_RIGHT");
-        panel.getActionMap().put("DO_RIGHT", new AbstractAction() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controllerPicture.amplify("DO_RIGHT");
-            }
-        });
-
-        panel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("LEFT"), "DO_LEFT");
-        panel.getActionMap().put("DO_LEFT", new AbstractAction() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controllerPicture.amplify("DO_LEFT");
-
-            }
+            throw new AssertionError();
         });
         // </editor-fold>
 
-        panel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("pressed F1"), "DO_F1");
-        panel.getActionMap().put("DO_F1", new AbstractAction() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("F1...");
-                if (ViewPhoto.this.toogle) {
-//                    controllerPicture.suspend();
-                } else {
-//                    controllerPicture.resume();
-                }
-                ViewPhoto.this.toogle = !ViewPhoto.this.toogle;
-            }
-        });
-
-        // <editor-fold defaultstate="collapsed" desc="Select Thumbnail">
-        panel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released CONTROL"), "DO_CONTROL");
-        panel.getActionMap().put("DO_CONTROL", new AbstractAction() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Component component = FocusManager.getCurrentManager().getFocusOwner();
-                if (component instanceof JLabel) {
-                    JLabel pic = (JLabel) component;
-                    int indexOf = carousel.indexOf(pic);
-                    if (pic.getIcon() != null) {
-                        try {
-                            System.out.println("indexOf " + indexOf);
-                            controllerPicture.remove(indexOf);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(ViewPhoto.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                    System.out.println("TODO Incluir llamado al controlador");
-                }
-            }
-        });
-
-        panel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released SPACE"), "DO_SPACE");
-        panel.getActionMap().put("DO_SPACE", new AbstractAction() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ViewPhoto.this.controllerPicture.streamToggle();
-            }
-        });
-
-        panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("released F5"), "DO_F5");
-        panel.getActionMap().put("DO_F5", new AbstractAction() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for (JLabel carousel1 : carousel) {
-                    System.out.println("carousel1 " + carousel1.isFocusable() + " " + carousel1.isFocusCycleRoot());
-                }
-                ViewPhoto.this.controllerPicture.getPicture();
-            }
-        });
-
+        KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "RIGHT", new MyAction("RIGHT"));
+        KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "LEFT", new MyAction("LEFT"));
+        KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "released CONTROL", new MyAction("released CONTROL"));
+        KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "released SPACE", new MyAction("released SPACE"));
+        KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_IN_FOCUSED_WINDOW, "released F5", new MyAction("released F5"));
         KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "pressed ENTER", new MyAction("pressed ENTER"));
-
-        // </editor-fold>
-        for (Component thumbnail : carousel) {
-            System.out.println("Position B " + thumbnail.getLocation());
-        }
-
-        Timer timer = new Timer(100, new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                int c = 0;
-                for (int i = 0; i < 5; i++) {
-                    if (carousel.get(i).getIcon() != null) {
-                        c++;
-                    }
-                }
-                if (c == 5) {
-                    try {
-                        controllerPicture.remove(3);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(ViewPhoto.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        });
-//        timer.start();
-    }
-
-    void showPictures(List<BufferedImage> pictures) {
-        for (int i = carousel.size() - 1; i >= 0; i--) {
-            if (i < pictures.size()) {
-                carousel.get(i).setIcon(new ImageIcon(pictures.get(i)));
-            } else {
-                carousel.get(i).setIcon(null);
-            }
-        }
     }
 
     void setController(ControllerPhoto controller) {
@@ -283,55 +128,13 @@ public class ViewPhoto {
             indexOf = size > 0 ? size - 1 : 0;
         }
 
-        System.out.println("Traverse " + indexOf);
-
         carousel.get(indexOf).grabFocus();
 
         return indexOf;
     }
 
-    public static List<Component> getAllComponents(final Container c) {
-        Component[] comps = c.getComponents();
-        List<Component> compList = new ArrayList<>();
-        for (Component comp : comps) {
-            compList.add(comp);
-            if (comp instanceof Container) {
-                compList.addAll(getAllComponents((Container) comp));
-            }
-        }
-        return compList;
-    }
-
-    JLabel empty() {
-
-        //Acotar a 5
-        for (int i = 0; i < 5; i++) {
-            JLabel label = carousel.get(i);
-            if (label.getIcon() == null && !listEngaged.contains(label)) {
-                System.out.println("null " + (label.getIcon() == null) + " con " + !listEngaged.contains(label));
-                System.out.println("Adding " + label.hashCode() + " - " + listEngaged.add(label));
-
-                return label;
-            }
-        }
-        return null;
-    }
-
     void showPicture(JLabel label, BufferedImage image) {
-        int indexOf = carousel.indexOf(label);
-        if (picture.get(0) == label) {
-            //System.out.println("Es la big " + image.hashCode() + "-" + EventQueue.isDispatchThread());
-        }
         label.setIcon(new ImageIcon(image));
-
-        Boolean flagi = null;
-        if (EventQueue.getCurrentEvent() instanceof InvocationEvent) {
-            InvocationEvent ie = (InvocationEvent) EventQueue.getCurrentEvent();
-            flagi = ie.isDispatched();
-        }
-
-//        System.out.println("Después de... " + controllerPicture.getState() + " dd " + EventQueue.isDispatchThread() + " * " + flagi + " $ " + EventQueue.getCurrentEvent().hashCode());
-//        boolean remove = listEngaged.remove(label);
     }
 
     List<JLabel> getLabels() {
@@ -348,12 +151,12 @@ public class ViewPhoto {
         return picture.get(0);
     }
 
-    void disableSave() {
-        buttonGET.setEnabled(false);
+    JLabel getSmallPic() {
+        return smallPic;
     }
 
-    void enableSave() {
-        buttonGET.setEnabled(true);
+    JLabel getLabel(Integer currentIndex) {
+        return carousel.get(currentIndex);
     }
 
     void requestFocusInWindow(int indexOf) {
@@ -364,12 +167,31 @@ public class ViewPhoto {
         controllerPicture.focusGained(e);
     }
 
+    private void focusLost(FocusEvent e) {
+        controllerPicture.focusLost(e);
+    }
+
     private void actionPerformed(String name) {
         switch (name) {
             case "pressed ENTER":
-                System.out.println("ViewPhoto controla el enter: la selección de la imagen y el salto de foco.");
                 //TODO Controller guarda la foto vigenete y da el salto al siguiente elemento.
                 controllerPicture.processSelection();
+                break;
+            case "released F5":
+                controllerPicture.getPicture();
+                break;
+            case "released SPACE":
+                controllerPicture.streamToggle();
+                break;
+            case "released CONTROL":
+                Component component = FocusManager.getCurrentManager().getFocusOwner();
+                controllerPicture.remove(component, carousel);
+                break;
+            case "RIGHT":
+                controllerPicture.amplify("DO_RIGHT");
+                break;
+            case "LEFT":
+                controllerPicture.amplify("DO_LEFT");
                 break;
             default:
                 throw new AssertionError();
@@ -385,8 +207,7 @@ public class ViewPhoto {
 
         @Override
         public void focusLost(FocusEvent e) {
-            JLabel source = (JLabel) e.getSource();
-            source.setBorder(null);
+            ViewPhoto.this.focusLost(e);
         }
     }
 

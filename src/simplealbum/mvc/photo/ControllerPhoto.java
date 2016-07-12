@@ -6,14 +6,18 @@
 package simplealbum.mvc.photo;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.border.LineBorder;
 
@@ -34,6 +38,9 @@ public class ControllerPhoto {
     private boolean stream;
 
     private final PropertyChangeSupport pcs;
+    private final MyListener propertyChangeListener;
+    private final Map<BufferedImage, Integer> amplifingRequests;
+    private Integer currentIndex;
 
     public ControllerPhoto(ViewPhoto view, ModelPhoto model) {
         this.view = view;
@@ -41,12 +48,17 @@ public class ControllerPhoto {
         this.model = model;
         this.model.setController(ControllerPhoto.this);
         //
+
+        propertyChangeListener = new MyListener();
+
         MyListener myListener = new MyListener();
         model.addPropertyChangeListener(myListener);
         //
         tiles = new QTiles(model, myListener);
         //
         amplifier = new Quick(myListener, "AMP_IMG");
+        amplifingRequests = new HashMap<>();
+        currentIndex = -1;
         //
         lastOne = 0;
         stream = true;
@@ -79,13 +91,13 @@ public class ControllerPhoto {
         switch (e.getPropertyName()) {
             case "BIG_":
                 //System.out.println("BIG b.getSynch() " + b.getSynch() + "-" + synch + "#" + System.currentTimeMillis());
-                if (b.getSynch() != synch || getFreeLabel() == null) {
-                    System.out.println("Bigger no se exhibe");
-                    break;
-                }
-                showPicture(view.getPic(), b.getScaled());
-                currentImg = (BufferedImage) e.getOldValue();
-                System.out.println("LA ACUTAL " + currentImg);
+//                if (b.getSynch() != synch || getFreeLabel() == null) {
+//                    System.out.println("Bigger no se exhibe");
+//                    break;
+//                }
+//                showPicture(view.getPic(), b.getScaled());
+//                currentImg = (BufferedImage) e.getOldValue();
+//                System.out.println("LA ACUTAL " + currentImg);
                 break;
             case "SMALL_":
                 if (b.getSynch() != synch) {
@@ -101,6 +113,8 @@ public class ControllerPhoto {
                     label.requestFocusInWindow();
                     lastOne++;
                     global++;
+
+//                    amplifier.request(e.getOldValue());
                     //System.out.println("GLOBAL " + global + " " + " OFFSET " + lastOne);
                     assert (lastOne > 0 && lastOne <= 5);
                 } else {
@@ -117,6 +131,7 @@ public class ControllerPhoto {
                 break;
             case "AMP_IMG":
                 currentImg = (BufferedImage) e.getOldValue();
+                currentIndex = amplifingRequests.get(currentImg);
                 showPicture(view.getPic(), (BufferedImage) e.getNewValue());
                 break;
             case "NO_PICS":
@@ -127,6 +142,7 @@ public class ControllerPhoto {
             case "DEL_IMG":
                 break;
             default:
+                System.out.println("From APP??? " + e);
 //                throw new AssertionError();
         }
     }
@@ -154,6 +170,21 @@ public class ControllerPhoto {
         return null;
     }
 
+    void remove(Component component, List<JLabel> carousel) {
+        if (component instanceof JLabel) {
+            JLabel pic = (JLabel) component;
+            int indexOf = carousel.indexOf(pic);
+            if (pic.getIcon() != null) {
+                try {
+                    System.out.println("indexOf " + indexOf);
+                    remove(indexOf);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(ViewPhoto.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
     void remove(int indexOf) throws InterruptedException {
         System.out.println("VIA REMOVE " + indexOf);
 
@@ -166,13 +197,6 @@ public class ControllerPhoto {
         }
         streamOn();
 
-//        lastOne = 0;
-//        synch = new Object();
-//        tiles.remove(indexOf, synch);
-//        lastOne = 0;
-//        streamOff();
-//        tiles.remove(indexOf);
-//        streamOn();
         int j = 5 - indexOf;
         global = global - j;
 
@@ -180,7 +204,6 @@ public class ControllerPhoto {
     }
 
     void amplify(String action) {
-        System.out.println("FRANCE");
         if (stream) {
             streamOff();
             amplify(view.traverse(0));
@@ -188,10 +211,10 @@ public class ControllerPhoto {
         }
         switch (action) {
             case "DO_RIGHT":
-                amplify(view.traverse(+1));
+                amplify(view.traverse(-1));
                 break;
             case "DO_LEFT":
-                amplify(view.traverse(-1));
+                amplify(view.traverse(+1));
                 break;
             default:
                 throw new AssertionError();
@@ -199,6 +222,8 @@ public class ControllerPhoto {
     }
 
     void amplify(int indexOf) {
+        //TODO Podría llenarse un array y consultarse con la imagen original y recuperar el índice
+        amplifingRequests.put(model.get(indexOf), indexOf);
         amplifier.request(model.get(indexOf));
     }
 
@@ -234,12 +259,38 @@ public class ControllerPhoto {
     }
 
     void focusGained(FocusEvent e) {
-        JLabel source = (JLabel) e.getSource();
-        source.setBorder(new LineBorder(Color.blue));
+
+        JComponent source = (JComponent) e.getSource();
+        if (source.getName().equals("_PICPANEL")) {
+
+            if (currentIndex >= 0) {
+                JLabel label = view.getLabel(currentIndex);
+                label.setBorder(new LineBorder(Color.blue));
+                label.grabFocus();
+                System.out.println("Tengo q pintar la " + currentIndex);
+            } else {
+                view.getSmallPic().grabFocus();
+            }
+            System.out.println("Pic panel rules!");
+        } else {
+            source.setBorder(new LineBorder(Color.blue));
+        }
+    }
+
+    void focusLost(FocusEvent e) {
+        JComponent source = (JComponent) e.getSource();
+        source.setBorder(null);
     }
 
     void processSelection() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        pcs.firePropertyChange("currentImage", null, currentImg);
+    }
+
+    /**
+     * @return the propertyChangeListener
+     */
+    public MyListener getPropertyChangeListener() {
+        return propertyChangeListener;
     }
 
     private class MyListener implements PropertyChangeListener {
