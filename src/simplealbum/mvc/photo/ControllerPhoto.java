@@ -68,8 +68,6 @@ public class ControllerPhoto {
 
     public void on() {
         model.on();
-        synch = new Object();
-        tiles.start(synch);
         amplifier.start();
     }
 
@@ -91,12 +89,12 @@ public class ControllerPhoto {
         switch (e.getPropertyName()) {
             case "BIG_":
                 //System.out.println("BIG b.getSynch() " + b.getSynch() + "-" + synch + "#" + System.currentTimeMillis());
-//                if (b.getSynch() != synch || getFreeLabel() == null) {
-//                    System.out.println("Bigger no se exhibe");
-//                    break;
-//                }
-//                showPicture(view.getPic(), b.getScaled());
-//                currentImg = (BufferedImage) e.getOldValue();
+                if (b.getSynch() != synch || getFreeLabel() == null) {
+                    System.out.println("Bigger no se exhibe");
+                    break;
+                }
+                showPicture(view.getPic(), b.getScaled());
+                currentImg = (BufferedImage) e.getOldValue();
 //                System.out.println("LA ACUTAL " + currentImg);
                 break;
             case "SMALL_":
@@ -236,9 +234,14 @@ public class ControllerPhoto {
     }
 
     void streamOn() {
-        System.out.println("STEAM ON");
-        stream = true;
-        tiles.resume();
+        if (tiles.isAlive()) {
+            System.out.println("STEAM ON");
+            stream = true;
+            tiles.resume();
+        } else {
+            synch = new Object();
+            tiles.start(synch);
+        }
     }
 
     void streamOff() {
@@ -262,7 +265,7 @@ public class ControllerPhoto {
 
         JComponent source = (JComponent) e.getSource();
         if (source.getName().equals("_PICPANEL")) {
-
+            streamOn();
             if (currentIndex >= 0) {
                 JLabel label = view.getLabel(currentIndex);
                 label.setBorder(new LineBorder(Color.blue));
@@ -283,6 +286,7 @@ public class ControllerPhoto {
     }
 
     void processSelection() {
+        streamOff();
         pcs.firePropertyChange("currentImage", null, currentImg);
     }
 

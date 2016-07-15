@@ -160,4 +160,8 @@ public class QTiles implements Runnable {
         }
         threadStopped = true;
     }
+
+    public final boolean isAlive() {
+        return blinker.isAlive();
+    }
 }
