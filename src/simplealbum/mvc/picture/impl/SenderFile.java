@@ -17,54 +17,51 @@ import javax.imageio.ImageIO;
 import org.apache.commons.io.FileUtils;
 import org.imgscalr.Scalr;
 import static org.imgscalr.Scalr.resize;
+import simplealbum.mvc.photo.ImageFile;
 import simplealbum.mvc.photo.Sender;
 
 public class SenderFile implements Sender {
 
-    private final Collection<File> listFiles;
+    private Collection<File> listFiles;
     private int index;
-    public final Object[] toArray;
+    public Object[] toArray;
     private int c;
+    private final String dir;
+    public static final String DIR_DEFAULT = "C:\\Users\\IBM_ADMIN\\Pictures\\X_20150119_MotoG\\Camera";
+    private final int num;
 
     public SenderFile() {
-
-//        listFiles = FileUtils.listFiles(new File("C:\\Users\\IBM_ADMIN\\Pictures\\Tester"), new String[]{"jpg"}, true);
-//        listFiles = FileUtils.listFiles(new File("C:\\Users\\IBM_ADMIN\\Pictures\\EliD680 2015-03-29"), new String[]{"jpg"}, true);
-        listFiles = FileUtils.listFiles(new File("C:\\Users\\IBM_ADMIN\\Pictures\\X_20150119_MotoG\\Camera"), new String[]{"jpg"}, true);
-
+        this.dir = DIR_DEFAULT;
+        listFiles = FileUtils.listFiles(new File(dir), new String[]{"jpg"}, true);
         toArray = listFiles.toArray();
+        num = toArray.length;
         System.out.println("Talla " + toArray.length);
         index = 0;
     }
 
     @Override
-    public ByteArrayInputStream convey() {
+    public ImageFile convey() {
         try {
+            long time = System.currentTimeMillis();
+            listFiles = FileUtils.listFiles(new File(DIR_DEFAULT), new String[]{"jpg"}, true);
+//            System.out.println("List file se lleva   :  " + (System.currentTimeMillis() - time));
+            toArray = listFiles.toArray();
+
             if (index >= toArray.length) {
-                System.out.println("Nada que procesar");
-                try {
-                    System.out.println("Enviados " + c);
-                    System.out.println("Total memory (bytes): " + Runtime.getRuntime().totalMemory());
-                    Thread.sleep(19000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(SenderFile.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                System.exit(0);
+                return null;
             }
+
             File file = (File) toArray[index++];
             if (file.length() == 0) {
                 System.out.println("PicVacia");
                 return null;
             }
-//            Image read = ImageIO.read(file).getScaledInstance(36, 27, Image.SCALE_FAST);
-//            BufferedImage original = ImageIO.read(file);
-            //
-//            Picture picture = new Picture(UUID.randomUUID().toString());
-//            picture.setOriginal();
-            //
-//            System.out.println("FileXXX " + file);
+
             c++;
-            return new ByteArrayInputStream(FileUtils.readFileToByteArray(file));
+
+            ByteArrayInputStream bais = new ByteArrayInputStream(FileUtils.readFileToByteArray(file));
+            ImageFile imageFile = new ImageFile(bais, file.getName());
+            return imageFile;
         } catch (IOException ex) {
             Logger.getLogger(SenderFile.class.getName()).log(Level.SEVERE, null, ex);
         }

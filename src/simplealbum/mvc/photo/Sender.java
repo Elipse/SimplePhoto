@@ -5,8 +5,6 @@
  */
 package simplealbum.mvc.photo;
 
-import java.io.ByteArrayInputStream;
-
 /**
  *
  * @author elialva
@@ -17,6 +15,6 @@ public interface Sender {
      *
      * @return
      */
-    public ByteArrayInputStream convey();
+    public ImageFile convey();
 
 }

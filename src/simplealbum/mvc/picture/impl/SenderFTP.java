@@ -18,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import simplealbum.entities.Picture;
+import simplealbum.mvc.photo.ImageFile;
 import simplealbum.mvc.photo.Sender;
 
 /**
@@ -47,14 +48,15 @@ public class SenderFTP implements Sender {
     }
 
     @Override
-    public ByteArrayInputStream convey() {
+    public ImageFile convey() {
         try {
             String next = listPending().remove(0);
             InputStream is = retrieveFileInputStream(next);
             Picture picture = new Picture();
             picture.setOriginal(IOUtils.toByteArray(is));
             listConveyed.add(next);
-            return new ByteArrayInputStream(IOUtils.toByteArray(is));
+            ByteArrayInputStream bais = new ByteArrayInputStream(IOUtils.toByteArray(is));
+            return new ImageFile(bais, next);
         } catch (IOException ex) {
             Logger.getLogger(SenderFTP.class.getName()).log(Level.SEVERE, null, ex);
         }

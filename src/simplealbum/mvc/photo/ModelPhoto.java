@@ -98,7 +98,7 @@ public class ModelPhoto {
         }
 
         private Object produce() {
-            ByteArrayInputStream inputStream = sender.convey();
+            ByteArrayInputStream inputStream = sender.convey().getBais();
             if (inputStream == null) {
                 return null;
             }
