@@ -221,6 +221,11 @@ public class ModelPic {
         System.out.println("remover fin");
     }
 
+    int getDisplays() {
+
+        return displaysIndex;
+    }
+
     class MyListener implements PropertyChangeListener {
 
         @Override

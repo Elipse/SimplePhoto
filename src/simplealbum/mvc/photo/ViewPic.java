@@ -5,6 +5,7 @@
  */
 package simplealbum.mvc.photo;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
@@ -21,6 +22,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.LineBorder;
 import utils.KeyStrokesUtil;
 import utils.Utils;
 
@@ -36,6 +38,8 @@ public class ViewPic {
     private final List listEngaged;
     private JPanel panel;
     private JLabel smallPic;
+    private JLabel currentLabel;
+    private JLabel lastBlueLabel;
 
     ViewPic(final Container container) {
 
@@ -48,15 +52,10 @@ public class ViewPic {
         List<Component> components = Utils.getAllComponents(container);
         for (Component component : components) {
             if (component.getName() != null && component.getName().startsWith("_CAR")) {
-                component.setFocusable(true);
-                component.addFocusListener(myListener);
                 carousel.add((JLabel) component);
             }
             if (component.getName() != null && component.getName().startsWith("_SPIC")) {
-                component.setFocusable(true);
-                component.addFocusListener(myListener);
                 smallPic = (JLabel) component;
-//                carousel.add((JLabel) component);
             }
             if (component.getName() != null && component.getName().startsWith("_PICTURE")) {
                 picture.add((JLabel) component);
@@ -114,13 +113,11 @@ public class ViewPic {
     }
 
     public int indexOfFocusOwner() {
-        Component focusOwner = FocusManager.getCurrentManager().getFocusOwner();
-        int indexOf = carousel.indexOf(focusOwner);
+        int indexOf = carousel.indexOf(currentLabel);
         return indexOf;
     }
 
     public int traverse(int i) {
-        Component focusOwner = FocusManager.getCurrentManager().getFocusOwner();
 
         int size = 0;
         size = carousel.stream().filter((label) -> (label.getIcon() != null)).map((_item) -> 1).reduce(size, Integer::sum);
@@ -129,34 +126,55 @@ public class ViewPic {
             return -1;
         }
 
-        if (focusOwner == smallPic) {
+        if (currentLabel != null) {
+            if ((((LineBorder) currentLabel.getBorder()).getLineColor() != Color.blue)) {
+                currentLabel.setBorder(null);
+            }
+        }
+
+        if (currentLabel == smallPic) {
             if (i >= 0) {
-                carousel.get(0).grabFocus();
+                currentLabel = carousel.get(0);
+                currentLabel.setBorder(new LineBorder(Color.gray));
                 return 0;
             } else {
-                carousel.get(size - 1).grabFocus();
+                currentLabel = carousel.get(size - 1);
+                currentLabel.setBorder(new LineBorder(Color.gray));
                 return size - 1;
             }
         }
 
-        int indexOf = carousel.indexOf(focusOwner) + i;
+        int indexOf = carousel.indexOf(currentLabel) + i;
 
-        if (indexOf >= size) {
-            smallPic.grabFocus();
-            return -1;
-        }
-        if (indexOf < 0) {
-            smallPic.grabFocus();
+        if (indexOf < 0 || indexOf >= size) {
+            currentLabel = smallPic;
+            currentLabel.setBorder(new LineBorder(Color.gray));
             return -1;
         }
 
-        carousel.get(indexOf).grabFocus();
+        currentLabel = carousel.get(indexOf);
 
+        currentLabel.setBorder(new LineBorder(Color.gray));
         return indexOf;
     }
 
     void showPicture(JLabel label, BufferedImage image) {
-        label.setIcon(new ImageIcon(image));
+
+        if (label == picture.get(0)) {
+            label.setIcon(new ImageIcon(image));
+            return;
+        }
+
+        System.out.println("Se muestra chiquis " + currentLabel);
+        System.out.println("Se muestra nueva " + label);
+
+        if (lastBlueLabel != null) {
+            lastBlueLabel.setBorder(null);
+        }
+
+        lastBlueLabel = label;
+        lastBlueLabel.setBorder(new LineBorder(Color.blue));
+        lastBlueLabel.setIcon(new ImageIcon(image));
     }
 
     List<JLabel> getLabels() {
@@ -164,9 +182,9 @@ public class ViewPic {
     }
 
     void clearLabels() {
-        for (JLabel carousel1 : carousel) {
-            carousel1.setIcon(null);
-        }
+        carousel.stream().forEach((label) -> {
+            label.setIcon(null);
+        });
     }
 
     JLabel getPic() {
@@ -182,20 +200,20 @@ public class ViewPic {
     }
 
     private void focusGained(FocusEvent e) {
-        controllerPicture.focusGained(e);
+        JComponent source = (JComponent) e.getSource();
+        source.setBorder(new LineBorder(Color.blue));
+        controllerPicture.streamToggle();
     }
 
     private void focusLost(FocusEvent e) {
-        controllerPicture.focusLost(e);
+        JComponent source = (JComponent) e.getSource();
+        source.setBorder(null);
     }
 
     private void actionPerformed(String name) {
         switch (name) {
             case "pressed ENTER":
                 controllerPicture.processSelection();
-                break;
-            case "pressed TAB":
-                System.out.println("Es un tab");
                 break;
             case "released F5":
 //                controllerPicture.getPicture();
@@ -204,7 +222,7 @@ public class ViewPic {
                 controllerPicture.streamToggle();
                 break;
             case "released CONTROL":
-                controllerPicture.remove();
+                controllerPicture.remove(indexOfFocusOwner());
                 break;
             case "RIGHT":
                 controllerPicture.amplify("RIGHT");
@@ -219,6 +237,23 @@ public class ViewPic {
 
     void getAway() {
         FocusManager.getCurrentManager().focusNextComponent(smallPic);
+    }
+
+    JLabel getFreeLabel() {
+        List<JLabel> labels = getLabels();
+        int c = 0;
+        for (JLabel label : labels) {
+            c++;
+            if (c > 5) {
+                //System.out.println("SIN CoNTAR");
+                return null;
+            }
+
+            if (label.getIcon() == null) {
+                return label;
+            }
+        }
+        return null;
     }
 
     private class MyListener implements FocusListener {

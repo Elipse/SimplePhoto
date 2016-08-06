@@ -25,6 +25,7 @@ public class ControllerPic {
     private int currentIndex;
     private boolean stream;
     private ByteArrayInputStream currentBais;
+    private int currentPic;
 
     ControllerPic(ViewPic view, ModelPic model) {
         this.view = view;
@@ -34,6 +35,8 @@ public class ControllerPic {
         //
 
         currentIndex = -1;
+
+        stream = true;
 //        propertyChangeListener = new ControllerPhoto.MyListener();
 //
 //        ControllerPhoto.MyListener myListener = new ControllerPhoto.MyListener();
@@ -45,7 +48,7 @@ public class ControllerPic {
     }
 
     void showPicture(ResponseData response) {
-        JLabel label = getFreeLabel();
+        JLabel label = view.getFreeLabel();
         BufferedImage small = response.getImageSmall();
         BufferedImage big = response.getImageBig();
 
@@ -65,6 +68,8 @@ public class ControllerPic {
                 currentIndex = response.getIndex();
                 break;
             case RequestData.AMPLIFING:
+                JLabel get = view.getLabels().get(response.getIndex());
+                view.showPicture(get, small);
                 view.showPicture(view.getPic(), big);
                 System.out.println("ControlAmpl " + response.getFile());
                 currentBais = response.getBais();
@@ -75,54 +80,8 @@ public class ControllerPic {
         }
     }
 
-    JLabel getFreeLabel() {
-        List<JLabel> labels = view.getLabels();
-        int c = 0;
-        for (JLabel label : labels) {
-            c++;
-            if (c > 5) {
-                //System.out.println("SIN CoNTAR");
-                return null;
-            }
-
-            if (label.getIcon() == null) {
-                return label;
-            }
-        }
-        return null;
-    }
-
-    void focusGained(FocusEvent e) {
-
-        JComponent source = (JComponent) e.getSource();
-        if (source.getName().equals("_PICPANEL")) {
-            streamOn();
-            if (currentIndex >= 0) {
-                JLabel label = view.getLabel(currentIndex);
-                label.setBorder(new LineBorder(Color.blue));
-                label.grabFocus();
-                System.out.println("Tengo q pintar la " + currentIndex);
-            } else {
-                view.getSmallPic().grabFocus();
-            }
-            System.out.println("Pic panel rules!");
-        } else {
-            source.setBorder(new LineBorder(Color.blue));
-        }
-    }
-
-    void focusLost(FocusEvent e) {
-        JComponent source = (JComponent) e.getSource();
-        source.setBorder(null);
-    }
-
-    private void streamOn() {
-        model.streamOn();
-    }
-
-    void remove() {
+    void remove(int i) {
         view.clearLabels();
-        int i = view.indexOfFocusOwner();
         if (i >= 0) {
             model.remove(i);
         }
@@ -131,25 +90,19 @@ public class ControllerPic {
     void amplify(String action) {
 
         model.streamOff();
-//        if (stream) {
-//            streamOff();
-//            amplify(view.traverse(0));
-//            return;
-//        }
+
         switch (action) {
             case "RIGHT":
-//                amplify(view.traverse(-1));
-                model.createRequest(view.traverse(-1));
+                currentPic = view.traverse(-1);
+                model.createRequest(currentPic);
                 break;
             case "LEFT":
-//                amplify(view.traverse(+1));
-                model.createRequest(view.traverse(+1));
+                currentPic = view.traverse(+1);
+                model.createRequest(currentPic);
                 break;
             default:
                 throw new AssertionError();
         }
-
-//        model.streamOn();
     }
 
     void streamToggle() {
@@ -167,6 +120,9 @@ public class ControllerPic {
 
     void processSelection() {
         model.streamOff();
+
+        System.out.println("currentPic " + currentPic + " displays " + model.getDisplays());
+
         //dispara propiedad currentImage o guarda propiedad
         view.getAway();
     }
