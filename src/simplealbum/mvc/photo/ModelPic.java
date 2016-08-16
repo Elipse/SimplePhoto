@@ -34,18 +34,25 @@ public class ModelPic {
     private final Consumer consumer;
     private final Sender sender;
     private Object synch;
-    private boolean streaming;
+    private boolean isStreaming;
     private ControllerPic controller;
-    private int index;
     private int displaysIndex;
-    private final int maxIndex;
     private int requestsIndex;
     private int imagesIndex;
+    private final int capacity;
+    private final Dimension smallDimension;
+    private final Dimension bigDimension;
+    private ResponseData currentResponse;
 
-    public ModelPic(Sender sender) {
+    public ModelPic(Sender sender, int capacity, Dimension smallDimension, Dimension bigDimension) {
         this.sender = sender;
-        buffer = new ArrayBlockingQueue<>(20, true);
-        tiles = new ArrayBlockingQueue<>(40);
+
+        this.capacity = capacity;
+        this.smallDimension = smallDimension;
+        this.bigDimension = bigDimension;
+
+        buffer = new ArrayBlockingQueue<>(capacity * 2);
+        tiles = new ArrayBlockingQueue<>(capacity * 8, true);
 
         MyListener myListener = new MyListener();
 
@@ -56,27 +63,27 @@ public class ModelPic {
 
         synch = new Object();
 
-        maxIndex = 5;
-        streaming = false;
+        isStreaming = false;
     }
 
-    public void on() {
+    void on() {
         producer.execute();
         consumer.execute();
     }
 
     private void doInBackgroundProducer() {
         while (true) {
-//            System.out.println("Producer...en while...");
             ImageFile imageFile = sender.convey();
+
             if (imageFile != null && imageFile.getBais() != null) {
                 ByteArrayInputStream inputStream = imageFile.getBais();
                 try {
                     BufferedImage image = ImageIO.read(inputStream);
                     imageFile.setImage(image);
+                    System.out.println("Putting en buffer " + imageFile.getFile());
                     buffer.put(imageFile);
                     producer.firePropertyChange("NEW_IMG", null, imageFile);
-                } catch (IOException | InterruptedException ex) {
+                } catch (Exception ex) {
                     Logger.getLogger(ModelPic.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -87,9 +94,11 @@ public class ModelPic {
         while (true) {
             RequestData request;
             try {
+                System.out.println("Taking en tiles ");
                 request = tiles.take();
+                System.out.println("Taken en tiles " + request.getFile());
                 if (request.getSynch() != synch) {
-                    System.out.println("Se tira: " + request.getType());
+                    System.out.println("Se tira: " + request.getFile());
                     continue;
                 }
 
@@ -106,27 +115,43 @@ public class ModelPic {
 
                 ResponseData response = new ResponseData(request.getIndex(), small, big, request.getSynch(), request.getType(), request.getFile(), request.getBais());
 
+                //System.out.println("Solicite el despliegue");
                 consumer.firePropertyChange("DIS_IMG", null, response);
-            } catch (InterruptedException ex) {
+            } catch (Exception ex) {
+                System.out.println("Lo Tome Exception!!! " + ex);
                 Logger.getLogger(ModelPic.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
 
+    /**
+     * Escucha a los threads: Productor y Consumidor
+     *
+     * @param evt Este parámetro indica a quien está escuchando.
+     */
     private void propertyChange(PropertyChangeEvent evt) {
 
         String name = evt.getPropertyName();
         switch (name) {
+            //Escucha al Productor
             case "NEW_IMG":
                 imagesIndex++;
-                if (streaming) {
+                System.out.println("NEW_IMG " + imagesIndex + " iSStremain " + isStreaming);
+                if (isStreaming) {
+                    System.out.println("Solicito request");
                     createRequests();
                 }
                 break;
+            //Escucha al Consumidor
             case "DIS_IMG":
                 ResponseData response = (ResponseData) evt.getNewValue();
                 if (response.getSynch() == synch) {
-                    controller.showPicture(response);
+                    if (controller.showPicture(response)) {
+                        currentResponse = response;
+                        ++displaysIndex;
+                    }
+                } else {
+                    System.out.println("Se tira al desplegar " + response.getFile());
                 }
                 break;
             default:
@@ -134,37 +159,71 @@ public class ModelPic {
         }
     }
 
-    public int increaseDisplays() {
-        return ++displaysIndex;
-    }
-
-    public void streamOn() {
+    void streamOn() {
+        synch = new Object();
+        isStreaming = true;
         System.out.println("requestsIndex " + requestsIndex + " displaysIndex " + displaysIndex);
         requestsIndex = displaysIndex;
         createRequests();
-        streaming = true;
     }
 
-    public void streamOff() {
-        streaming = false;
+    void streamOff() {
         synch = new Object();
+        isStreaming = false;
+        System.out.println("QUEIN cancelo");
+        //controller.clearBorders();
     }
 
-    void setController(ControllerPic controller) {
-        this.controller = controller;
+    void remove(int i) {
+        for (int j = 0; j < i; j++) {
+            try {
+                buffer.take();
+                imagesIndex--;
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ModelPic.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        requestsIndex = 0;
+        displaysIndex = 0;
+        createRequests();
     }
 
-    public void createRequest(int indexOf) {
+    private void createRequests() {
+
+        /* A partir de la última y hasta acabarse el modelo o llenar la pantalla */
+        for (int i = requestsIndex; i < imagesIndex && i <= 5; i++) {
+            try {
+                System.out.println("createRequest " + i);
+                RequestData request = new RequestData(RequestData.STREAMING);
+                request.setDimensionBig(bigDimension);
+                request.setDimensionSmall(smallDimension);
+                ImageFile imageFile = (ImageFile) buffer.toArray()[i];
+                request.setIndex(i);
+                request.setImage(imageFile.getImage());
+                request.setFile(imageFile.getFile());
+                request.setSynch(synch);
+                System.out.println("Putting en tiles " + request.getFile());
+                tiles.put(request);
+                System.out.println("Put en tiles " + request.getFile());
+                requestsIndex++;
+//                System.out.println("Producer " + toArray[i]);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ModelPic.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    void createRequest(int indexOf) {
         if (indexOf < 0) {
             //Aqui solicita acceso a BD
             return;
         }
-        synch = new Object();
+        streamOff();
         try {
-            System.out.println("createRequest only one");
+//            System.out.println("createRequest only one");
             RequestData request = new RequestData(RequestData.AMPLIFING);
-            request.setDimensionBig(new Dimension(64 * 4, 64 * 4));
-            request.setDimensionSmall(new Dimension(64, 64));
+            request.setDimensionBig(bigDimension);
+            request.setDimensionSmall(smallDimension);
             ImageFile imageFile = (ImageFile) buffer.toArray()[indexOf];
             request.setIndex(indexOf);
             request.setBais(imageFile.getBais());
@@ -177,53 +236,19 @@ public class ModelPic {
         }
     }
 
-    private void createRequests() {
-
-        /* A partir de la última y hasta acabarse el modelo o llenar la pantalla */
-//        for (int i = displaysIndex; i < toArray.length && i < maxIndex; i++) {
-        for (int i = requestsIndex; i < imagesIndex && i <= 5; i++) {
-//        for (int i = requestsIndex; i < imagesIndex; i++) {
-            try {
-                System.out.println("createRequest " + i);
-                RequestData request = new RequestData(RequestData.STREAMING);
-                request.setDimensionBig(new Dimension(64 * 4, 64 * 4));
-                request.setDimensionSmall(new Dimension(64, 64));
-                ImageFile imageFile = (ImageFile) buffer.toArray()[i];
-                request.setIndex(i);
-                request.setImage(imageFile.getImage());
-                request.setFile(imageFile.getFile());
-                request.setSynch(synch);
-                tiles.put(request);
-                requestsIndex++;
-//                System.out.println("Producer " + toArray[i]);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(ModelPic.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+    ResponseData getCurrenResponse() {
+        return currentResponse;
     }
 
-    void remove(int i) {
-
-        //TODO se queda trabado si se le piden 4 debe ser dinámico
-        System.out.println("remover ini");
-        for (int j = 0; j < i; j++) {
-            try {
-                buffer.take();
-                imagesIndex--;
-            } catch (InterruptedException ex) {
-                Logger.getLogger(ModelPic.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        requestsIndex = 0;
-        displaysIndex = 0;
-        synch = new Object();
-        createRequests();
-        System.out.println("remover fin");
+    void setController(ControllerPic controller) {
+        this.controller = controller;
     }
 
-    int getDisplays() {
-
-        return displaysIndex;
+    /**
+     * @return the isStreaming
+     */
+    public boolean isIsStreaming() {
+        return isStreaming;
     }
 
     class MyListener implements PropertyChangeListener {
@@ -250,15 +275,5 @@ public class ModelPic {
             ModelPic.this.doInBackgroundProducer();
             return null;
         }
-    }
-
-    public static void main(String[] args) {
-
-        EventQueue.invokeLater(() -> {
-            ModelPic m = new ModelPic(new SenderFile());
-            m.on();
-            JOptionPane.showInputDialog("Prueba");
-        });
-
     }
 }

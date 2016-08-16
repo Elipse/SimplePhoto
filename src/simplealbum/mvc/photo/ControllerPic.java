@@ -5,14 +5,8 @@
  */
 package simplealbum.mvc.photo;
 
-import java.awt.Color;
-import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.util.List;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.border.LineBorder;
 
 /**
  *
@@ -23,32 +17,29 @@ public class ControllerPic {
     private final ViewPic view;
     private final ModelPic model;
     private int currentIndex;
-    private boolean stream;
-    private ByteArrayInputStream currentBais;
     private int currentPic;
+    private ResponseData currentResponse;
 
     ControllerPic(ViewPic view, ModelPic model) {
         this.view = view;
         this.view.setController(ControllerPic.this);
         this.model = model;
         this.model.setController(ControllerPic.this);
-        //
 
         currentIndex = -1;
-
-        stream = true;
-//        propertyChangeListener = new ControllerPhoto.MyListener();
-//
-//        ControllerPhoto.MyListener myListener = new ControllerPhoto.MyListener();
-//        model.addPropertyChangeListener(myListener);
     }
 
     public void on() {
         model.on();
     }
 
-    void showPicture(ResponseData response) {
-        JLabel label = view.getFreeLabel();
+    public ResponseData getPicture() {
+        return currentResponse;
+    }
+
+    boolean showPicture(ResponseData response) {
+        JLabel label = view.getLabel();
+        boolean show = false;
         BufferedImage small = response.getImageSmall();
         BufferedImage big = response.getImageBig();
 
@@ -62,42 +53,47 @@ public class ControllerPic {
                 System.out.println("ControlNew " + response.getFile());
                 view.showPicture(label, small);
                 view.showPicture(view.getPic(), big);
-//                label.requestFocusInWindow();
-                model.increaseDisplays();
-                currentBais = response.getBais();
+                //model.increaseDisplays();
+                show = true;
+                currentResponse = response;
                 currentIndex = response.getIndex();
                 break;
             case RequestData.AMPLIFING:
-                JLabel get = view.getLabels().get(response.getIndex());
+                JLabel get = view.getLabel(response.getIndex());
                 view.showPicture(get, small);
                 view.showPicture(view.getPic(), big);
                 System.out.println("ControlAmpl " + response.getFile());
-                currentBais = response.getBais();
+                show = false;
+                currentResponse = response;
                 currentIndex = response.getIndex();
                 break;
             default:
                 throw new AssertionError();
         }
+        return show;
     }
 
     void remove(int i) {
+        streamOff();
         view.clearLabels();
         if (i >= 0) {
             model.remove(i);
         }
+        streamOn();
     }
 
     void amplify(String action) {
-
-        model.streamOff();
-
+        streamOff();
         switch (action) {
             case "RIGHT":
                 currentPic = view.traverse(-1);
+                System.out.println("RIGHT " + currentPic);
                 model.createRequest(currentPic);
                 break;
             case "LEFT":
+
                 currentPic = view.traverse(+1);
+                System.out.println("LEFT " + currentPic);
                 model.createRequest(currentPic);
                 break;
             default:
@@ -105,11 +101,24 @@ public class ControllerPic {
         }
     }
 
-    void streamToggle() {
-        System.out.println("Stream es " + stream);
-        stream = !stream;
+    void streamOn() {
+        model.streamOn();
+    }
 
-        if (stream) {
+    void streamOff() {
+        model.streamOff();
+    }
+
+    void clearBorders() {
+        view.clearBorders();
+    }
+
+    void streamToggle() {
+        System.out.println("Stream es " + model.isIsStreaming());
+
+        view.clearBorders();
+
+        if (model.isIsStreaming()) {
             System.out.println("Apgo");
             model.streamOff();
         } else {
@@ -121,7 +130,9 @@ public class ControllerPic {
     void processSelection() {
         model.streamOff();
 
-        System.out.println("currentPic " + currentPic + " displays " + model.getDisplays());
+        view.clearBorders();
+
+        System.out.println("currentPic " + currentPic);
 
         //dispara propiedad currentImage o guarda propiedad
         view.getAway();

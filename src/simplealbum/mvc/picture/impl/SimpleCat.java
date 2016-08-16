@@ -7,17 +7,18 @@ package simplealbum.mvc.picture.impl;
 
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import simplealbum.mvc.app.App;
 import simplealbum.mvc.app.ControllerApp;
 import simplealbum.mvc.autocomplete.AppAutoComp;
 import simplealbum.mvc.autocomplete.Controller;
-import simplealbum.mvc.photo.AppPhoto;
-import simplealbum.mvc.photo.ControllerPhoto;
-import utils.KeyStrokesUtil;
+import simplealbum.mvc.photo.AppPic;
+import simplealbum.mvc.photo.ControllerPic;
 import static utils.KeyStrokesUtil.assignKeyStrokes;
 import static utils.KeyStrokesUtil.reassignKeyStrokes;
 
@@ -27,22 +28,25 @@ import static utils.KeyStrokesUtil.reassignKeyStrokes;
  */
 public class SimpleCat extends javax.swing.JFrame {
 
+    private final ControllerPic cp;
+
     /**
      * Creates new form SimpleCat
      */
-    public SimpleCat() {
+    public SimpleCat() throws IOException {
         initComponents();
 
         ControllerApp controllerApp = App.control(rootPane, new DBProvider());
 
-        ControllerPhoto controllerPhoto = AppPhoto.control(getContentPane(), new SenderFile());
-        controllerPhoto.on();
+        //ControllerPhoto controllerPhoto = AppPhoto.control(getContentPane(), new SenderFile());
+        //controllerPhoto.on();
+        cp = AppPic.control(rootPane, new SenderFTP());
+        cp.on();
 
         Controller cAutoComp = AppAutoComp.control(rootPane, new SeekerFactoryImpl());
 
-        controllerApp.addPropertyChangeListener(controllerPhoto.getPropertyChangeListener());
-        controllerPhoto.addPropertyChangeListener(controllerApp);
-
+//        controllerApp.addPropertyChangeListener(controllerPhoto.getPropertyChangeListener());
+//        controllerPhoto.addPropertyChangeListener(controllerApp);
         //TODO Debe estar en el autocompletador de texto (CONTROLER)
         reassignKeyStrokes(jTextPane1, JComponent.WHEN_FOCUSED, "pressed TAB", "shift pressed TAB");
         System.out.println("content " + getContentPane());
@@ -269,7 +273,11 @@ public class SimpleCat extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new SimpleCat().setVisible(true);
+                try {
+                    new SimpleCat().setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(SimpleCat.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }

@@ -5,12 +5,7 @@
  */
 package simplealbum.mvc.app;
 
-import simplealbum.mvc.autocomplete.*;
-import java.awt.Container;
 import javax.swing.JRootPane;
-import simplealbum.mvc.photo.ControllerPhoto;
-import simplealbum.mvc.photo.ModelPhoto;
-import simplealbum.mvc.photo.ViewPhoto;
 import simplealbum.mvc.picture.impl.DBProvider;
 
 /**

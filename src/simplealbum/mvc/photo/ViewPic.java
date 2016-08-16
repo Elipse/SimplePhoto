@@ -22,6 +22,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import utils.KeyStrokesUtil;
 import utils.Utils;
@@ -103,7 +104,6 @@ public class ViewPic {
         KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "LEFT", new MyAction("LEFT"));
         KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "released CONTROL", new MyAction("released CONTROL"));
         KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "released SPACE", new MyAction("released SPACE"));
-        KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_IN_FOCUSED_WINDOW, "released F5", new MyAction("released F5"));
         KeyStrokesUtil.assignKeyStrokes(panel, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, "pressed ENTER", new MyAction("pressed ENTER"));
     }
 
@@ -112,12 +112,7 @@ public class ViewPic {
 //        controllerPicture.setCarousel(carousel);
     }
 
-    public int indexOfFocusOwner() {
-        int indexOf = carousel.indexOf(currentLabel);
-        return indexOf;
-    }
-
-    public int traverse(int i) {
+    int traverse(int i) {
 
         int size = 0;
         size = carousel.stream().filter((label) -> (label.getIcon() != null)).map((_item) -> 1).reduce(size, Integer::sum);
@@ -127,7 +122,8 @@ public class ViewPic {
         }
 
         if (currentLabel != null) {
-            if ((((LineBorder) currentLabel.getBorder()).getLineColor() != Color.blue)) {
+            LineBorder border = (LineBorder) currentLabel.getBorder();
+            if (border != null && border.getLineColor() != Color.blue) {
                 currentLabel.setBorder(null);
             }
         }
@@ -165,9 +161,8 @@ public class ViewPic {
             return;
         }
 
-        System.out.println("Se muestra chiquis " + currentLabel);
-        System.out.println("Se muestra nueva " + label);
-
+//        System.out.println("Se muestra chiquis " + currentLabel);
+//        System.out.println("Se muestra nueva " + label);
         if (lastBlueLabel != null) {
             lastBlueLabel.setBorder(null);
         }
@@ -175,10 +170,8 @@ public class ViewPic {
         lastBlueLabel = label;
         lastBlueLabel.setBorder(new LineBorder(Color.blue));
         lastBlueLabel.setIcon(new ImageIcon(image));
-    }
 
-    List<JLabel> getLabels() {
-        return carousel;
+        currentLabel = lastBlueLabel;
     }
 
     void clearLabels() {
@@ -187,22 +180,20 @@ public class ViewPic {
         });
     }
 
-    JLabel getPic() {
-        return picture.get(0);
-    }
-
-    JLabel getSmallPic() {
-        return smallPic;
-    }
-
-    JLabel getLabel(Integer currentIndex) {
-        return carousel.get(currentIndex);
+    void clearBorders() {
+        carousel.stream().forEach((label) -> {
+            LineBorder border = (LineBorder) label.getBorder();
+            if (border != null && border.getLineColor().equals(Color.gray)) {
+                label.setBorder(null);
+            }
+        });
+        currentLabel = lastBlueLabel;
     }
 
     private void focusGained(FocusEvent e) {
         JComponent source = (JComponent) e.getSource();
         source.setBorder(new LineBorder(Color.blue));
-        controllerPicture.streamToggle();
+//        controllerPicture.streamOn();
     }
 
     private void focusLost(FocusEvent e) {
@@ -215,19 +206,19 @@ public class ViewPic {
             case "pressed ENTER":
                 controllerPicture.processSelection();
                 break;
-            case "released F5":
-//                controllerPicture.getPicture();
-                break;
             case "released SPACE":
                 controllerPicture.streamToggle();
                 break;
             case "released CONTROL":
-                controllerPicture.remove(indexOfFocusOwner());
+                System.out.println("indexOfFocusOwner " + carousel.indexOf(currentLabel));
+                controllerPicture.remove(carousel.indexOf(currentLabel));
                 break;
             case "RIGHT":
+                System.out.println("RIGHT");
                 controllerPicture.amplify("RIGHT");
                 break;
             case "LEFT":
+                System.out.println("LEFT");
                 controllerPicture.amplify("LEFT");
                 break;
             default:
@@ -239,8 +230,16 @@ public class ViewPic {
         FocusManager.getCurrentManager().focusNextComponent(smallPic);
     }
 
-    JLabel getFreeLabel() {
-        List<JLabel> labels = getLabels();
+    int getCapacity() {
+        return carousel.size();
+    }
+
+    JLabel getLabel(int i) {
+        return carousel.get(i);
+    }
+
+    JLabel getLabel() {
+        List<JLabel> labels = carousel;
         int c = 0;
         for (JLabel label : labels) {
             c++;
@@ -254,6 +253,14 @@ public class ViewPic {
             }
         }
         return null;
+    }
+
+    JLabel getPic() {
+        return picture.get(0);
+    }
+
+    JLabel getSmallPic() {
+        return smallPic;
     }
 
     private class MyListener implements FocusListener {

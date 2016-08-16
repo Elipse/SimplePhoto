@@ -5,6 +5,11 @@
  */
 package simplealbum.mvc.photo;
 
+import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import simplealbum.mvc.picture.impl.SenderFTP;
 import simplealbum.mvc.picture.impl.SenderFile;
 
 /**
@@ -13,13 +18,17 @@ import simplealbum.mvc.picture.impl.SenderFile;
  */
 public class JDialogPic extends javax.swing.JDialog {
 
+    private final ControllerPic cp;
+
     /**
      * Creates new form ViewPic
      */
-    public JDialogPic(java.awt.Frame parent, boolean modal) {
+    public JDialogPic(java.awt.Frame parent, boolean modal) throws IOException {
         super(parent, modal);
         initComponents();
-        AppPic.control(rootPane, new SenderFile()).on();
+//        cp = AppPic.control(rootPane, new SenderFile());
+        cp = AppPic.control(rootPane, new SenderFTP());
+        cp.on();
     }
 
     /**
@@ -118,6 +127,11 @@ public class JDialogPic extends javax.swing.JDialog {
         jLabel6.setName("_PICTURE"); // NOI18N
 
         jButton1.setText("GUARDAR");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -154,6 +168,11 @@ public class JDialogPic extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        System.out.println("El actual es " + cp.getPicture().getFile());
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -183,8 +202,8 @@ public class JDialogPic extends javax.swing.JDialog {
         //</editor-fold>
 
         /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
                 JDialogPic dialog = new JDialogPic(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
@@ -193,6 +212,8 @@ public class JDialogPic extends javax.swing.JDialog {
                     }
                 });
                 dialog.setVisible(true);
+            } catch (IOException ex) {
+                Logger.getLogger(JDialogPic.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }

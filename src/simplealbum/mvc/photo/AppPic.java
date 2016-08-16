@@ -6,6 +6,7 @@
 package simplealbum.mvc.photo;
 
 import java.awt.Container;
+import java.awt.Dimension;
 
 /**
  *
@@ -14,8 +15,8 @@ import java.awt.Container;
 public class AppPic {
 
     public static ControllerPic control(Container container, Sender sender) {
-        ViewPic viewPicture = new ViewPic(container);
-        ModelPic modelPicture = new ModelPic(sender);
-        return new ControllerPic(viewPicture, modelPicture);
+        ViewPic viewPic = new ViewPic(container);
+        ModelPic modelPicture = new ModelPic(sender, viewPic.getCapacity(), new Dimension(64, 64), new Dimension(64 * 4, 64 * 4));
+        return new ControllerPic(viewPic, modelPicture);
     }
 }
