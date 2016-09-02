@@ -30,15 +30,16 @@ import simplealbum.mvc.photo.Sender;
  * @author elialva
  */
 public class SenderFTP implements Sender {
-    
+
     private final FTPClient ftpClient;
     private final String logPath;
     private final ArrayList listLog;
     private final ArrayList listConveyed;
-    
+
     public SenderFTP() throws IOException {
         ftpClient = new FTPClient();
-        ftpClient.connect("192.168.1.67", 2151);
+//        ftpClient.connect("192.168.1.68", 2151);
+        ftpClient.connect("10.64.112.191", 2151);
         ftpClient.login("eam", "qaz");
         ftpClient.enterLocalPassiveMode();
         ftpClient.setKeepAlive(true);
@@ -48,12 +49,17 @@ public class SenderFTP implements Sender {
         Object[] toArray = FileUtils.readLines(new File(logPath)).toArray();
         Arrays.sort(toArray);
         System.out.println("Logdd " + logPath);
-        
+
     }
-    
+
     @Override
     public ImageFile convey() {
+        System.out.println("Llamando convey " + System.currentTimeMillis());
+
         try {
+            if (listPending().size() == 0) {
+                return null;
+            }
             String next = listPending().remove(0);
 //            System.out.println("nexta " + next);
 //            InputStream is = retrieveFileInputStream(next);
@@ -61,20 +67,24 @@ public class SenderFTP implements Sender {
 //            Picture picture = new Picture();
 //            picture.setOriginal(IOUtils.toByteArray(is));
             listConveyed.add(next);
+            System.out.println("Nexto " + next);
 //            ByteArrayInputStream bais = new ByteArrayInputStream(IOUtils.toByteArray(is));
 //            bais.close();
 
             ByteArrayOutputStream bais2 = new ByteArrayOutputStream();
+            System.out.println("Antes de retrive");
             ftpClient.retrieveFile(next, bais2);
+            System.out.println("DEepses de retrive");
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(bais2.toByteArray()));
 //            System.out.println("image " + image);
             return new ImageFile(new ByteArrayInputStream(bais2.toByteArray()), next);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
+            System.out.println("Sender Ex ? " + ex);
             Logger.getLogger(SenderFTP.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
-    
+
     public List<String> listPending() throws IOException {
         //Manejar en memoria el log, manejar string[] en listnames
         List<String> listDir = Arrays.asList(ftpClient.listNames());
@@ -87,11 +97,11 @@ public class SenderFTP implements Sender {
             }
         }
         listPending.removeAll(listConveyed);
-//        System.out.println("lis " + listPending.size());
+        System.out.println("lis " + listPending.size());
         Collections.sort(listPending);
         return listPending;
     }
-    
+
     public InputStream retrieveFileInputStream(String remote) {
         try {
             InputStream retrieveFileStream = ftpClient.retrieveFileStream(remote);
@@ -104,11 +114,11 @@ public class SenderFTP implements Sender {
         }
         return null;
     }
-    
+
     public void stop() throws IOException {
         FileUtils.writeLines(new File(logPath), listLog);
     }
-    
+
     public static void main(String[] args) throws IOException {
         SenderFTP tf = new SenderFTP();
         tf.convey();

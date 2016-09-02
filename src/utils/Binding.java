@@ -8,18 +8,43 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
+import simplealbum.mvc.autocomplete.AutoCompleteTest;
 
 public class Binding {
 
+    private static JComponent component;
+
+    private static void setLook() {
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(AutoCompleteTest.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(AutoCompleteTest.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(AutoCompleteTest.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(AutoCompleteTest.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+    }
+
     public static void main(String[] argv) throws Exception {
-        JComponent component = new JTextPane();
+        setLook();
+        component = new JTextArea();
         System.out.println("WHEN_FOCUSED___________________________");
         InputMap map = component.getInputMap(JComponent.WHEN_FOCUSED);
-        System.out.println("itself");
+        System.out.println("itself ");
         list(map, map.keys());
-        System.out.println("daddy");
+        System.out.println("daddy ");
         list(map, map.allKeys());
         System.out.println("WHEN_ANCESTOR_OF_FOCUSED_COMPONENT_____");
         map = component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
@@ -42,6 +67,10 @@ public class Binding {
         }
         for (int i = 0; i < keys.length; i++) {
             System.out.println(keys[i] + " - " + map.get(keys[i]));
+
+            Action get = component.getActionMap().get(map.get(keys[i]));
+            //System.out.println("get " + get);
+
             keyStroke2String(keys[i]);
             while (map.get(keys[i]) == null) {
                 map = map.getParent();

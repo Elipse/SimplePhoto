@@ -40,7 +40,7 @@ public class SimpleCat extends javax.swing.JFrame {
 
         //ControllerPhoto controllerPhoto = AppPhoto.control(getContentPane(), new SenderFile());
         //controllerPhoto.on();
-        cp = AppPic.control(rootPane, new SenderFTP());
+        cp = AppPic.control(rootPane, new SenderFile());
         cp.on();
 
         Controller cAutoComp = AppAutoComp.control(rootPane, new SeekerFactoryImpl());

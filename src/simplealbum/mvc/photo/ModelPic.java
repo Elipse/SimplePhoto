@@ -73,6 +73,7 @@ public class ModelPic {
 
     private void doInBackgroundProducer() {
         while (true) {
+            System.out.println("Iterando en doInBackgroundProducer");
             ImageFile imageFile = sender.convey();
 
             if (imageFile != null && imageFile.getBais() != null) {
@@ -83,7 +84,8 @@ public class ModelPic {
                     System.out.println("Putting en buffer " + imageFile.getFile());
                     buffer.put(imageFile);
                     producer.firePropertyChange("NEW_IMG", null, imageFile);
-                } catch (Exception ex) {
+                } catch (IOException | InterruptedException ex) {
+                    System.out.println("Epale!!! " + ex);
                     Logger.getLogger(ModelPic.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -275,5 +277,11 @@ public class ModelPic {
             ModelPic.this.doInBackgroundProducer();
             return null;
         }
+
+        @Override
+        protected void done() {
+            System.out.println("Estatus " + this.isCancelled() + " " + this.isDone());
+        }
+
     }
 }
